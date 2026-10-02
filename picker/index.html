@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎲 學生隨機抽籤與小組分組器 - bio-tools (大廳三)</title>
+  <link rel="stylesheet" href="style.css?v=1.0">
+</head>
+<body>
+  <div class="tool-container">
+    <header class="tool-header">
+      <a href="../index.html" class="btn-back">⬅️ 返回大廳三 (教學工具)</a>
+      <h1>🎲 學生隨機抽籤與小組分組器</h1>
+    </header>
+
+    <main class="picker-main">
+      <!-- 頁籤切換：轉盤抽籤 vs 自動分組 vs 名單設定 -->
+      <div class="nav-tabs">
+        <button id="tabWheel" class="tab-btn active">🎡 幸運大轉盤抽籤</button>
+        <button id="tabGroup" class="tab-btn">👥 一鍵公平分組</button>
+        <button id="tabRoster" class="tab-btn">📝 編輯學生名單</button>
+      </div>
+
+      <!-- 分頁 1: 大轉盤抽籤 -->
+      <section id="secWheel" class="tab-section active">
+        <div class="wheel-layout">
+          <div class="canvas-container">
+            <div class="wheel-pointer">▼</div>
+            <canvas id="wheelCanvas" width="450" height="450"></canvas>
+          </div>
+
+          <div class="wheel-controls">
+            <button id="btnSpin" class="btn-spin">🎯 開始旋轉抽籤！</button>
+            
+            <div class="picker-options">
+              <label class="toggle-option">
+                <input type="checkbox" id="checkRemovePicked" checked>
+                <span>不重複抽籤 (抽中者暫時移除)</span>
+              </label>
+            </div>
+
+            <div class="picked-history-box">
+              <h3>📜 本次已抽中名單：</h3>
+              <div id="pickedHistory" class="picked-tags">
+                <span class="empty-hint">尚無抽中學生</span>
+              </div>
+              <button id="btnResetPicked" class="btn-reset-picked">🔄 放回所有人重抽</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 抽中彈窗 Modal -->
+        <div id="winnerModal" class="modal hidden">
+          <div class="modal-content">
+            <div class="trophy-icon">🎉</div>
+            <h2>恭喜抽中！</h2>
+            <div id="winnerText" class="winner-name">學生名稱</div>
+            <button id="btnCloseModal" class="btn-modal-close">確定 (繼續抽籤)</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 分頁 2: 公平分組 -->
+      <section id="secGroup" class="tab-section">
+        <div class="group-config-card">
+          <h2>👥 自動隨機分組設定</h2>
+          <div class="config-row">
+            <label>分組模式：</label>
+            <select id="groupModeSelect" class="styled-select">
+              <option value="byTeams">固定分成 N 個小組</option>
+              <option value="bySize">固定每組 M 人</option>
+            </select>
+
+            <label id="groupNumLabel">分組數量：</label>
+            <input type="number" id="groupNumInput" value="6" min="2" max="20" class="styled-input">
+            
+            <button id="btnGenerateGroups" class="btn-group-action">⚡ 立即生成隨機分組</button>
+          </div>
+        </div>
+
+        <div id="groupsDisplayArea" class="groups-grid">
+          <p class="empty-hint">請點擊上方「立即生成隨機分組」按鈕</p>
+        </div>
+      </section>
+
+      <!-- 分頁 3: 編輯名單 -->
+      <section id="secRoster" class="tab-section">
+        <div class="roster-card">
+          <h2>📝 班級學生名單管理</h2>
+          <p class="roster-desc">每一行為一位學生（姓名或座號）。輸入後自動儲存於此裝置中。</p>
+
+          <textarea id="rosterInput" class="roster-textarea" rows="10" placeholder="例如：
+1號 張小明
+2號 林小華
+3號 陳大同
+4號 葉小妹..."></textarea>
+
+          <div class="roster-buttons">
+            <button id="btnSaveRoster" class="btn-save">💾 儲存名單</button>
+            <button id="btnLoadPreset30" class="btn-preset-roster">⚡ 載入預設 1~30 號座號</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="picker.js?v=1.0"></script>
+</body>
+</html>

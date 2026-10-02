@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏆 課堂小組記分板與搶答音效器 - bio-tools (大廳三)</title>
+  <link rel="stylesheet" href="style.css?v=1.0">
+</head>
+<body>
+  <div class="tool-container">
+    <header class="tool-header">
+      <a href="../index.html" class="btn-back">⬅️ 返回大廳三 (教學工具)</a>
+      <h1>🏆 課堂小組記分板與搶答音效器</h1>
+      <button id="btnFullscreen" class="btn-fullscreen">🖥️ 全螢幕投影</button>
+    </header>
+
+    <main class="scoreboard-main">
+      <!-- 頂部音效與控制卡片 -->
+      <section class="sound-deck">
+        <div class="deck-title">🔔 課堂即時互動音效按鈕</div>
+        <div class="sound-buttons">
+          <button class="btn-sfx sfx-correct" id="sfxCorrect">🎵 答對叮咚</button>
+          <button class="btn-sfx sfx-wrong" id="sfxWrong">❌ 答錯嗶嗶</button>
+          <button class="btn-sfx sfx-buzzer" id="sfxBuzzer">🚨 搶答響鈴</button>
+          <button class="btn-sfx sfx-cheer" id="sfxCheer">🎉 歡呼鼓掌</button>
+        </div>
+      </section>
+
+      <!-- 小組數量與設定 -->
+      <section class="control-bar">
+        <div class="control-group">
+          <label for="selectTeamCount">小組數量：</label>
+          <select id="selectTeamCount" class="styled-select">
+            <option value="2">2 組</option>
+            <option value="3">3 組</option>
+            <option value="4">4 組</option>
+            <option value="5">5 組</option>
+            <option value="6" selected>6 組</option>
+            <option value="8">8 組</option>
+            <option value="10">10 組</option>
+            <option value="12">12 組</option>
+          </select>
+        </div>
+
+        <div class="control-buttons">
+          <button id="btnResetAllScores" class="btn-reset">🔄 全部分數清零</button>
+        </div>
+      </section>
+
+      <!-- 小組記分板 Grid -->
+      <section id="teamsGrid" class="teams-grid">
+        <!-- 由 JS 動態繪製小組卡片 -->
+      </section>
+    </main>
+  </div>
+
+  <script src="scoreboard.js?v=1.0"></script>
+</body>
+</html>

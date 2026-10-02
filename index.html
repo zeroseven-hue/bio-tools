@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>國中生物與課堂互動教學工具大廳 - bio-tools (大廳三)</title>
+  <link rel="stylesheet" href="style.css?v=1.0">
+  <!-- QRCode.js CDN for QR Code Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <div class="lobby-container">
+    <header class="lobby-header">
+      <div class="logo-area">
+        <div class="hall-tag">🏛️ 大廳三 ‧ 課堂教學工具專區</div>
+        <h1>🛠️ 國中生物與課堂互動教學工具大廳 <code>bio-tools</code></h1>
+        <p>提供大螢幕投影互動、iPad 雙向操控、專注計時、公平抽籤分組與小組競賽記分音效器</p>
+      </div>
+
+      <!-- 三大大廳跨頁面導覽列 -->
+      <nav class="hall-nav-bar">
+        <a href="https://zeroseven-hue.github.io/bio-games/" class="hall-nav-btn hall-1">
+          <span class="icon">🎮</span>
+          <span class="text">大廳一：共用題庫遊戲</span>
+        </a>
+        <a href="https://zeroseven-hue.github.io/bio-standalone-games/" class="hall-nav-btn hall-2">
+          <span class="icon">🧩</span>
+          <span class="text">大廳二：獨立單元遊戲</span>
+        </a>
+        <a href="index.html" class="hall-nav-btn hall-3 active">
+          <span class="icon">🛠️</span>
+          <span class="text">大廳三：課堂教學工具</span>
+        </a>
+      </nav>
+    </header>
+
+    <main class="lobby-main">
+      <!-- 🛠️ 教學工具卡片區域 -->
+      <section class="tools-section">
+        <h2>🛠️ 課堂教學工具選單</h2>
+        <div class="tools-grid">
+
+          <!-- 工具 1: 課堂專注計時與倒數碼表 -->
+          <div class="tool-card card-timer">
+            <div class="card-badge bg-blue">大螢幕必備</div>
+            <div class="card-icon">⏱️</div>
+            <h3>課堂專注計時與倒數碼表</h3>
+            <p class="card-desc">專為課堂討論、測驗與隨堂活動設計！支援正計時、倒數計時、快選時間、全螢幕大字體投影與終點鈴聲提醒。</p>
+            <div class="card-tags">
+              <span>⏱️ 1-60分快選</span>
+              <span>🔔 提示音效</span>
+              <span>🖥️ 全螢幕投影</span>
+            </div>
+            <div class="card-actions">
+              <a href="timer/index.html?v=1.0" class="btn-launch btn-blue">⏱️ 開啟計時器</a>
+            </div>
+          </div>
+
+          <!-- 工具 2: 學生隨機抽籤與小組分組器 -->
+          <div class="tool-card card-picker">
+            <div class="card-badge bg-purple">公平互動</div>
+            <div class="card-icon">🎲</div>
+            <h3>學生隨機抽籤與小組分組器</h3>
+            <p class="card-desc">動態幸運大轉盤與抽籤箱！一鍵快速匯入學生名單、記憶常用陣容、自動不重複抽籤與公平名單隨機分組。</p>
+            <div class="card-tags">
+              <span>🎡 幸運大轉盤</span>
+              <span>👥 異質/隨機分組</span>
+              <span>💾 記憶學生名單</span>
+            </div>
+            <div class="card-actions">
+              <a href="picker/index.html?v=1.0" class="btn-launch btn-purple">🎲 開啟抽籤分組</a>
+            </div>
+          </div>
+
+          <!-- 工具 3: 課堂小組記分板與搶答音效器 -->
+          <div class="tool-card card-scoreboard">
+            <div class="card-badge bg-orange">熱烈競賽</div>
+            <div class="card-icon">🏆</div>
+            <h3>課堂小組記分板與搶答音效器</h3>
+            <p class="card-desc">支援 1~12 小組動態計分！附帶搶答按鈕、歡呼音效、答對叮咚聲、得分排行榜高亮與一鍵分數重置功能。</p>
+            <div class="card-tags">
+              <span>🏆 1~12小組計分</span>
+              <span>🔔 搶答音效按鈕</span>
+              <span>🥇 即時榜首高亮</span>
+            </div>
+            <div class="card-actions">
+              <a href="scoreboard/index.html?v=1.0" class="btn-launch btn-orange">🏆 開啟記分板</a>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 👨‍🏫 教師派發與 QR Code 工具產生器 -->
+      <section class="dispatch-section">
+        <div class="dispatch-card">
+          <h2>📱 教師一鍵課堂工具派發與 QR Code 產生器</h2>
+          <p class="dispatch-subtitle">快速生成教學工具的二維碼，供學生或現場助教直接掃碼開啟對應工具！</p>
+
+          <div class="dispatch-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="selectTool">選擇要派發的教學工具：</label>
+                <select id="selectTool" class="styled-select">
+                  <option value="timer/index.html">⏱️ 課堂專注計時與倒數碼表 (Timer)</option>
+                  <option value="picker/index.html">🎲 學生隨機抽籤與小組分組器 (Random Picker)</option>
+                  <option value="scoreboard/index.html">🏆 課堂小組記分板與搶答音效器 (Scoreboard)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="dispatch-buttons">
+              <button id="btnGenerateQR" class="btn-dispatch">📱 生成二維碼與連結</button>
+              <button id="btnCopyUrl" class="btn-dispatch btn-secondary">🔗 複製連結</button>
+            </div>
+
+            <!-- QR Code 與網址顯示區 -->
+            <div id="qrResultArea" class="qr-result-area hidden">
+              <div class="qr-code-box">
+                <div id="qrcode"></div>
+                <p class="qr-hint">請使用相機或 iPad 掃描此二維碼開啟工具</p>
+              </div>
+              <div class="url-box">
+                <label>工具派發網址：</label>
+                <input type="text" id="generatedUrlInput" readonly>
+                <a id="btnDirectLaunch" href="#" target="_blank" class="btn-launch-link">🚀 在新視窗開啟</a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="lobby-footer">
+      <p>bio-tools 國中生物與課堂互動教學工具大廳 &copy; 2026 | 專為 GitHub Pages 部署設計 | 相容 Windows, iPad & 觸控大螢幕</p>
+    </footer>
+  </div>
+
+  <script src="app.js?v=1.0"></script>
+</body>
+</html>

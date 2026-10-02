@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⏱️ 課堂專注計時與倒數碼錶 - bio-tools (大廳三)</title>
+  <link rel="stylesheet" href="style.css?v=1.0">
+</head>
+<body>
+  <div class="tool-container">
+    <header class="tool-header">
+      <a href="../index.html" class="btn-back">⬅️ 返回大廳三 (教學工具)</a>
+      <h1>⏱️ 課堂專注計時與倒數碼錶</h1>
+      <button id="btnFullscreen" class="btn-fullscreen">🖥️ 全螢幕投影</button>
+    </header>
+
+    <main class="timer-main">
+      <!-- 模式切換與快選面板 -->
+      <div class="timer-controls-panel">
+        <div class="mode-tabs">
+          <button id="tabCountdown" class="tab-btn active">⏱️ 倒數計時器</button>
+          <button id="tabStopwatch" class="tab-btn">⏱️ 正計時碼錶</button>
+        </div>
+
+        <div id="quickPresets" class="quick-presets">
+          <span class="preset-label">⚡ 常用時間快選：</span>
+          <button class="btn-preset" data-mins="1">1分鐘</button>
+          <button class="btn-preset" data-mins="3">3分鐘</button>
+          <button class="btn-preset" data-mins="5">5分鐘</button>
+          <button class="btn-preset" data-mins="10">10分鐘</button>
+          <button class="btn-preset" data-mins="15">15分鐘</button>
+          <button class="btn-preset" data-mins="20">20分鐘</button>
+          <button class="btn-preset" data-mins="30">30分鐘</button>
+        </div>
+      </div>
+
+      <!-- 核心計時顯示區 -->
+      <div class="timer-display-card" id="displayCard">
+        <div class="timer-progress-bar" id="progressBar"></div>
+        <div class="timer-digits" id="timerDigits">05:00</div>
+        <div class="timer-status" id="timerStatus">準備就緒</div>
+
+        <div class="time-adjust-buttons" id="adjustButtons">
+          <button id="btnSub1Min" class="btn-adj">- 1 分鐘</button>
+          <button id="btnAdd1Min" class="btn-adj">+ 1 分鐘</button>
+          <button id="btnAdd5Min" class="btn-adj">+ 5 分鐘</button>
+        </div>
+
+        <div class="action-buttons">
+          <button id="btnStartPause" class="btn-action btn-start">▶️ 開始計時</button>
+          <button id="btnReset" class="btn-action btn-reset">🔄 重置</button>
+        </div>
+      </div>
+
+      <!-- 音效與特教備註 settings -->
+      <div class="timer-settings">
+        <label class="toggle-setting">
+          <input type="checkbox" id="checkSound" checked>
+          <span>🔔 倒數結束播放提示音</span>
+        </label>
+        <label class="toggle-setting">
+          <input type="checkbox" id="checkTickSound">
+          <span>🔊 每秒滴答聲 (靜音微流逝)</span>
+        </label>
+      </div>
+    </main>
+  </div>
+
+  <script src="timer.js?v=1.0"></script>
+</body>
+</html>

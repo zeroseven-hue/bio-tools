@@ -1,0 +1,240 @@
+/* bio-tools Timer Style */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #f8fafc;
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.tool-container {
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.tool-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.btn-back {
+  color: #60a5fa;
+  text-decoration: none;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 8px 16px;
+  border-radius: 10px;
+}
+
+.btn-fullscreen {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.timer-main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.timer-controls-panel {
+  background: rgba(30, 41, 59, 0.8);
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mode-tabs {
+  display: flex;
+  gap: 10px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #94a3b8;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: #2563eb;
+  color: white;
+  border-color: #60a5fa;
+}
+
+.quick-presets {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.preset-label {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+}
+
+.btn-preset {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.btn-preset:hover {
+  background: #3b82f6;
+}
+
+/* 巨型計時器卡片 */
+.timer-display-card {
+  position: relative;
+  background: rgba(15, 23, 42, 0.9);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  padding: 40px 20px;
+  text-align: center;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.timer-progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 8px;
+  width: 100%;
+  background: #3b82f6;
+  transition: width 0.3s linear;
+}
+
+.timer-digits {
+  font-size: 7.5rem;
+  font-weight: 900;
+  font-family: 'Courier New', Courier, monospace;
+  color: #38bdf8;
+  letter-spacing: 2px;
+  text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+  line-height: 1.1;
+  margin: 10px 0;
+}
+
+.timer-digits.time-warning {
+  color: #ef4444;
+  text-shadow: 0 0 24px rgba(239, 68, 68, 0.6);
+  animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.03); }
+}
+
+.timer-status {
+  font-size: 1.2rem;
+  color: #94a3b8;
+  margin-bottom: 24px;
+}
+
+.time-adjust-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.btn-adj {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.btn-adj:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.btn-action {
+  padding: 16px 36px;
+  border-radius: 14px;
+  border: none;
+  font-size: 1.3rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.btn-action:hover {
+  transform: scale(1.04);
+}
+
+.btn-start {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.btn-pause {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+}
+
+.btn-reset {
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+}
+
+.timer-settings {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  flex-wrap: wrap;
+}
+
+.toggle-setting {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
