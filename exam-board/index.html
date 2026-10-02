@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>考場數位黑板 - 時鐘與考程版 (含字型縮放)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
+
+        body { 
+            box-sizing: border-box; 
+            font-family: 'Inter', system-ui, sans-serif; 
+            background-color: #f8fafc; /* 護眼淺灰底色 */
+            color: #0f172a; 
+        }
+
+        /* 超大時鐘數字字體 */
+        .font-mono-time { 
+            font-family: 'JetBrains Mono', monospace; 
+            font-variant-numeric: tabular-nums; 
+        }
+
+        /* === 專屬字型縮放邏輯 (右側專用) === */
+        #rightPanel { --zoom: 1; }
+        .zoom-text-lg { font-size: calc(1.125rem * var(--zoom)); }
+        .zoom-text-xl { font-size: calc(1.25rem * var(--zoom)); }
+        .zoom-w-time { width: calc(12rem * var(--zoom)); min-width: 120px; }
+
+        /* 乾淨的輸入框風格 (像在白板上填空) */
+        .board-input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid #cbd5e1;
+            border-radius: 0;
+            padding: 4px 8px;
+            color: #1e293b;
+            font-weight: 700;
+            outline: none;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .board-input:focus { 
+            border-bottom-color: #3b82f6; 
+            background: #eff6ff; 
+        }
+        
+        textarea.board-input { 
+            border: 1px solid #cbd5e1; 
+            border-radius: 8px; 
+            resize: none; 
+            border-bottom: 1px solid #cbd5e1; 
+        }
+        textarea.board-input:focus { border-color: #3b82f6; }
+
+        /* 摺疊面板動畫 */
+        .collapse-content {
+            display: grid;
+            grid-template-rows: 1fr;
+            transition: grid-template-rows 0.3s ease-out;
+        }
+        .collapse-content > div { overflow: hidden; }
+        .collapse-content.collapsed { grid-template-rows: 0fr; }
+        
+        .arrow-icon { transition: transform 0.3s ease; }
+        .collapsed .arrow-icon { transform: rotate(-90deg); }
+
+        /* 閃爍的秒數冒號 */
+        .blink { animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0.3; } }
+
+        /* 自訂右側捲軸 */
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col">
+
+    <div class="fixed top-0 left-0 right-0 bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center z-50 shadow-sm">
+        <div class="text-2xl font-bold tracking-widest text-slate-800 flex items-center gap-3">
+            <span>🏫</span> 考場數位黑板
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="../index.html" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-lg font-bold text-sm transition-colors" style="text-decoration:none">⬅️ 返回大廳三</a>
+            <button onclick="document.documentElement.requestFullscreen().catch(e=>console.log(e))" class="bg-slate-800 hover:bg-slate-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-transform active:scale-95 flex items-center gap-2 shadow-md">
+                📺 全螢幕投影
+            </button>
+        </div>
+    </div>
+
+    <main class="flex-1 flex flex-col lg:flex-row gap-8 pt-24 pb-8 px-8 w-full max-w-[1600px] mx-auto h-full">
+        
+        <div class="flex flex-col w-full lg:w-5/12 h-full gap-6">
+            
+            <div class="flex-1 bg-white rounded-3xl border border-slate-200 shadow-xl flex flex-col items-center justify-center p-8 relative overflow-hidden">
+                <div class="absolute top-8 left-8 text-xl font-bold tracking-widest text-slate-400">CURRENT TIME</div>
+                
+                <div class="flex flex-col items-center justify-center w-full mt-8">
+                    <span id="dateDisplay" class="text-2xl xl:text-3xl font-bold text-slate-500 mb-6 tracking-wide">載入中...</span>
+                    <div class="flex items-baseline text-slate-800 font-mono-time">
+                        <span id="hourDisplay" class="text-[8rem] xl:text-[11rem] font-bold leading-none tracking-tighter">00</span>
+                        <span class="text-[6rem] xl:text-[8rem] font-bold leading-none blink text-slate-400 mx-2 mb-4">:</span>
+                        <span id="minuteDisplay" class="text-[8rem] xl:text-[11rem] font-bold leading-none tracking-tighter">00</span>
+                        <span id="secondDisplay" class="text-4xl xl:text-5xl font-bold text-slate-400 ml-4 mb-6">00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-xl p-8 shrink-0">
+                <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                    <span>👥</span> 出缺席統計
+                </h3>
+                <div class="flex justify-between items-center mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                    <div class="flex items-center gap-3">
+                        <span class="text-slate-500 font-bold text-lg">應到：</span>
+                        <input type="number" id="totalStudents" class="board-input w-20 text-center text-2xl" value="35">
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-slate-500 font-bold text-lg">實到：</span>
+                        <input type="number" id="actualStudents" class="board-input w-20 text-center text-2xl text-green-700" value="35">
+                    </div>
+                    <div class="flex items-center gap-3 bg-white px-5 py-2 rounded-xl shadow-sm border border-red-100">
+                        <span class="text-slate-500 font-bold text-lg">缺考：</span>
+                        <span id="absentStudents" class="text-3xl font-bold text-red-600 w-10 text-center">0</span>
+                    </div>
+                </div>
+                <div>
+                    <span class="block text-slate-500 font-bold mb-3 text-sm">缺考名單與特殊備註：</span>
+                    <textarea placeholder="例如：5號(病假)、12號(特教考場)..." class="board-input w-full p-4 h-24 text-lg bg-slate-50" spellcheck="false"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div id="rightPanel" class="flex flex-col w-full lg:w-7/12 h-full gap-6 overflow-y-auto pr-2 pb-10 custom-scrollbar">
+            
+            <div class="bg-slate-800 text-white rounded-2xl p-5 shadow-lg flex justify-between items-center shrink-0">
+                <h2 class="text-2xl font-bold tracking-wider flex items-center gap-3">
+                    <span>📅</span> 今日考程表
+                </h2>
+                
+                <div class="flex items-center bg-slate-700 rounded-lg p-1 gap-1 border border-slate-600">
+                    <span class="text-xs text-slate-300 font-bold ml-2 mr-1 hidden sm:inline">字體大小</span>
+                    <button onclick="changeZoom(-0.1)" class="w-8 h-8 flex items-center justify-center rounded bg-slate-600 hover:bg-slate-500 text-white font-bold transition-colors shadow-sm" title="縮小字體">A-</button>
+                    <button onclick="changeZoom(0.1)" class="w-8 h-8 flex items-center justify-center rounded bg-slate-600 hover:bg-slate-500 text-white font-bold transition-colors shadow-sm" title="放大字體">A+</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden shrink-0">
+                <button onclick="toggleSection('morningSection')" class="w-full bg-slate-50 hover:bg-slate-100 p-5 flex justify-between items-center border-b border-slate-200 transition-colors focus:outline-none">
+                    <div class="zoom-text-xl font-bold text-slate-700 flex items-center gap-2">
+                        <span class="text-2xl">☀️</span> 上午考程 (第1~4節)
+                    </div>
+                    <svg class="w-6 h-6 text-slate-500 arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                
+                <div id="morningSection" class="collapse-content">
+                    <div>
+                        <div class="p-6 flex flex-col gap-4">
+                            <div class="flex items-center gap-4 bg-white p-3 rounded-xl hover:bg-slate-50 transition-colors">
+                                <span class="bg-slate-200 text-slate-700 font-black px-4 py-2 rounded-lg zoom-text-lg">第一節</span>
+                                <input type="text" class="board-input zoom-w-time zoom-text-xl text-center" placeholder="時間" value="08:10 - 09:00">
+                                <input type="text" class="board-input flex-1 zoom-text-xl" placeholder="考試科目" value="國文">
+                            </div>
+                            <div class="flex items-center gap-4 bg-white p-3 rounded-xl hover:bg-slate-50 transition-colors">
+                                <span class="bg-slate-200 text-slate-700 font-black px-4 py-2 rounded-lg zoom-text-lg">第二節</span>
+                                <input type="text" class="board-input zoom-w-time zoom-text-xl text-center" placeholder="時間" value="09:15 - 10:05">
+                                <input type="text" class="board-input flex-1 zoom-text-xl" placeholder="考試科目" value="數學">
+                            </div>
+                            <div class="flex items-center gap-4 bg-white p-3 rounded-xl hover:bg-slate-50 transition-colors">
+                                <span class="bg-slate-200 text-slate-700 font-black px-4 py-2 rounded-lg zoom-text-lg">第三節</span>
+                                <input type="text" class="board-input zoom-w-time zoom-text-xl text-center" placeholder="時間" value="10:20 - 11:10">
+                                <input type="text" class="board-input flex-1 zoom-text-xl" placeholder="考試科目" value="英文">
+                            </div>
+                            <div class="flex items-center gap-4 bg-white p-3 rounded-xl hover:bg-slate-50 transition-colors">
+                                <span class="bg-slate-200 text-slate-700 font-black px-4 py-2 rounded-lg zoom-text-lg">第四節</span>
+                                <input type="text" class="board-input zoom-w-time zoom-text-xl text-center" placeholder="時間" value="11:20 - 12:10">
+                                <input type="text" class="board-input flex-1 zoom-text-xl" placeholder="考試科目" value="自習">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden shrink-0">
+                <button onclick="toggleSection('afternoonSection')" class="w-full bg-slate-50 hover:bg-slate-100 p-5 flex justify-between items-center border-b border-slate-200 transition-colors focus:outline-none">
+                    <div class="zoom-text-xl font-bold text-slate-700 flex items-center gap-2">
+                        <span class="text-2xl">☕</span> 下午考程 (第5~7節)
+                    </div>
+                    <svg class="w-6 h-6 text-slate-500 arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                
+                <div id="afternoonSection" class="collapse-content">
+                    <div>
+                        <div class="p-6 flex flex-col gap-4">
+                            <div class="flex items-center gap-4 bg-white p-3 rounded-xl hover:bg-slate-50 transition-colors">
+                                <span class="bg-slate-200 text-slate-700 font-black px-4 py-2 rounded-lg zoom-text-lg">第五節</span>
+                                <input type="text" class="board-input zoom-w-time zoom-text-xl text-center" placeholder="時間" value="13:10 - 14:00">
+                                <input type="text" class="board-input flex-1 zoom-text-xl" placeholder="考試科目" value="社會">
+                            </div>
+                            <div class="flex items-center gap-4 bg-white p-3 rounded-xl hover:bg-slate-50 transition-colors">
+                                <span class="bg-slate-200 text-slate-700 font-black px-4 py-2 rounded-lg zoom-text-lg">第六節</span>
+                                <input type="text" class="board-input zoom-w-time zoom-text-xl text-center" placeholder="時間" value="14:15 - 15:05">
+                                <input type="text" class="board-input flex-1 zoom-text-xl" placeholder="考試科目" value="自然">
+                            </div>
+                            <div class="flex items-center gap-4 bg-white p-3 rounded-xl hover:bg-slate-50 transition-colors">
+                                <span class="bg-slate-200 text-slate-700 font-black px-4 py-2 rounded-lg zoom-text-lg">第七節</span>
+                                <input type="text" class="board-input zoom-w-time zoom-text-xl text-center" placeholder="時間" value="15:20 - 16:10">
+                                <input type="text" class="board-input flex-1 zoom-text-xl" placeholder="考試科目" value="班會/大掃除">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 shrink-0 mt-2">
+                <div class="text-slate-500 font-bold mb-3 flex items-center gap-2 zoom-text-lg">
+                    <span>⚠️</span> 考場注意事項
+                </div>
+                <textarea class="board-input w-full p-4 zoom-text-xl leading-relaxed bg-slate-50 h-[200px]" spellcheck="false">1. 桌面淨空，僅保留考試用文具。
+2. 行動電話請完全關機，並放入書包。
+3. 考試開始 15 分鐘後不得入場。
+4. 鐘聲響畢，請立即停筆，違者依考場規定扣分。</textarea>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // === 右側面板：字體放大縮小邏輯 ===
+        let currentZoom = 1;
+        function changeZoom(step) {
+            currentZoom += step;
+            // 限制縮放範圍，避免字體過大破壞版面或過小看不見
+            if (currentZoom < 0.8) currentZoom = 0.8;
+            if (currentZoom > 1.8) currentZoom = 1.8;
+            
+            document.getElementById('rightPanel').style.setProperty('--zoom', currentZoom);
+        }
+
+        // === 超大時鐘與日期邏輯 ===
+        const hourDisplay = document.getElementById('hourDisplay');
+        const minuteDisplay = document.getElementById('minuteDisplay');
+        const secondDisplay = document.getElementById('secondDisplay');
+        const dateDisplay = document.getElementById('dateDisplay');
+
+        const days = ['日', '一', '二', '三', '四', '五', '六'];
+
+        function updateClock() {
+            const now = new Date();
+            
+            // 更新時間
+            hourDisplay.innerText = String(now.getHours()).padStart(2, '0');
+            minuteDisplay.innerText = String(now.getMinutes()).padStart(2, '0');
+            secondDisplay.innerText = String(now.getSeconds()).padStart(2, '0');
+
+            // 更新日期
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const date = now.getDate();
+            const day = days[now.getDay()];
+            dateDisplay.innerText = `${year}年 ${month}月 ${date}日 (${day})`;
+            
+            requestAnimationFrame(updateClock);
+        }
+        updateClock(); // 啟動時鐘
+
+        // === 考程表收合邏輯 ===
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const wrapper = section.parentElement;
+            
+            // 切換 collapsed 類別來控制 CSS Grid 動畫
+            section.classList.toggle('collapsed');
+            wrapper.classList.toggle('collapsed');
+        }
+
+        // === 自動計算缺考人數邏輯 ===
+        const totalIn = document.getElementById('totalStudents');
+        const actualIn = document.getElementById('actualStudents');
+        const absentOut = document.getElementById('absentStudents');
+        
+        function calcAbsent() {
+            const total = parseInt(totalIn.value) || 0;
+            const actual = parseInt(actualIn.value) || 0;
+            const absent = Math.max(0, total - actual);
+            absentOut.innerText = absent;
+            // 缺考人數大於0時，數字稍微變大且變紅以提醒
+            absentOut.className = absent > 0 ? "text-4xl font-black text-red-600 w-10 text-center" : "text-3xl font-bold text-slate-400 w-10 text-center";
+        }
+        totalIn.addEventListener('input', calcAbsent);
+        actualIn.addEventListener('input', calcAbsent);
+        
+        // 初始化計算一次
+        calcAbsent();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Zootopia 大富翁抽籤系統 - V1 全新課堂遊戲化版</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --color-y: #FFF9C4; --color-b: #E1F5FE; --color-p: #FCE4EC; 
+            --color-g: #E8F5E9; --color-o: #FFE082; 
+            --judy-blue: #0288D1; --border-color: #000;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            background-color: #E6F3EA; 
+            display: flex; justify-content: center; align-items: center;
+            margin: 0; padding: 0;
+            height: 100vh; height: 100dvh; 
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        .portrait-warning {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%;
+            background: #E74C3C; color: #FFF; text-align: center;
+            font-size: 13px; font-weight: bold; padding: 6px 0; z-index: 9999;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        @media (orientation: portrait) and (max-width: 768px) {
+            .portrait-warning { display: block; }
+        }
+
+        .board-container {
+            width: min(98vw, calc(96dvh * 1.25)); 
+            aspect-ratio: 10 / 8;
+            max-width: 1400px;
+            background-color: var(--border-color); 
+            border: clamp(2px, 0.5vw, 5px) solid #000;
+            box-shadow: clamp(4px, 1vw, 8px) clamp(4px, 1vw, 8px) 0px rgba(0,0,0,0.2);
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            gap: 2px; position: relative;
+            container-type: inline-size; 
+        }
+
+        .cell {
+            background-color: #FFF;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-weight: bold; text-align: center; position: relative; z-index: 1;
+            overflow: hidden; padding: 1%;
+        }
+
+        .corner.chance { background: linear-gradient(135deg, #FFCDD2, #FFF); color: #C62828; }
+        .corner.destiny { background: linear-gradient(135deg, #D7BDE2, #FFF); color: #6C3483; }
+
+        .cell-icon { font-size: clamp(16px, 3.5cqi, 40px); margin-bottom: 2%; line-height: 1; }
+        .cell-text { 
+            width: 98%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+            font-size: clamp(12px, 2.2cqi, 26px); font-weight: 900;
+        }
+        
+        .building-badge {
+            font-size: clamp(10px, 1.4cqi, 16px); 
+            border: max(1px, 0.2cqi) solid #FFF; 
+            border-radius: 6px; padding: 2px 6px; margin-top: 2%; 
+            color: #FFF; font-weight: 900;
+            box-shadow: 0px 2px 4px rgba(0,0,0,0.5); 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 95%;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            position: relative; z-index: 5;
+        }
+        .level-1 { background: #4CAF50; }
+        .level-2 { background: #2196F3; }
+        .level-3 { background: #9C27B0; }
+        .level-4 { background: #FF9800; }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .center-area {
+            grid-column: 2 / 10; grid-row: 2 / 8;
+            background-color: #F8FEF9;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; z-index: 10; border: clamp(2px, 0.4vw, 4px) solid #000;
+            padding: 2%; text-align: center;
+        }
+
+        .mini-toggles { position: absolute; top: max(5px, 1.5%); right: max(5px, 1.5%); display: flex; gap: 6px; }
+        .toggle-btn {
+            background: #E0E0E0; border: 2px solid #000; border-radius: 50%;
+            width: clamp(28px, 4cqi, 45px); height: clamp(28px, 4cqi, 45px);
+            font-size: clamp(14px, 2cqi, 22px); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 2px 2px 0px #000; transition: transform 0.1s;
+        }
+        .toggle-btn.active { background: #81C784; }
+        .toggle-btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px #000; }
+
+        .judy-token {
+            position: absolute; 
+            width: clamp(35px, 6cqi, 80px); height: clamp(35px, 6cqi, 80px); 
+            font-size: clamp(25px, 5cqi, 65px);
+            display: none; align-items: center; justify-content: center;
+            z-index: 100; pointer-events: none;
+            transform-origin: bottom center;
+            transform: translate(-50%, -75%); 
+            filter: drop-shadow(0 0 8px rgba(2,136,209,0.7));
+            transition: left 0.1s ease-out, top 0.1s ease-out;
+        }
+
+        @keyframes judyJump {
+            0% { transform: translate(-50%, -75%) scale(1.1, 0.9); }
+            30% { transform: translate(-50%, -115%) scale(0.9, 1.1); }
+            70% { transform: translate(-50%, -70%) scale(1.2, 0.8); }
+            100% { transform: translate(-50%, -75%) scale(1, 1); }
+        }
+        .is-jumping { animation: judyJump 0.2s ease-out forwards; }
+
+        .center-title {
+            background: #4CAF50; color: #FFF; 
+            padding: clamp(5px, 1cqi, 10px) clamp(15px, 3cqi, 35px); 
+            font-size: clamp(18px, 3.8cqi, 42px); font-weight: bold; border: 3px solid #000; 
+            box-shadow: 3px 3px 0px #000; margin-bottom: 1%; transform: rotate(-1deg);
+        }
+
+        /* 🐾 中央放大版動物城小鎮專區 */
+        .pet-sanctuary {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9); 
+            border: 3px dashed #2E7D32; border-radius: 12px;
+            padding: clamp(6px, 1.5cqi, 14px); margin: 6px 0; width: 88%;
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.05);
+        }
+        .pet-title { font-size: clamp(13px, 1.8cqi, 20px); font-weight: 900; color: #1B5E20; }
+        .pet-icons { font-size: clamp(22px, 3.5cqi, 40px); letter-spacing: 8px; font-weight: bold; }
+
+        .controls { 
+            display: flex; gap: clamp(5px, 1cqi, 12px); flex-wrap: wrap; 
+            justify-content: center; width: 95%; margin-top: 1%;
+        }
+        .ctrl-btn {
+            border: 2px solid #000; border-radius: 5px; 
+            padding: clamp(6px, 1.5cqi, 10px) clamp(10px, 2cqi, 18px);
+            font-size: clamp(12px, 1.7cqi, 17px); font-weight: bold; cursor: pointer;
+            box-shadow: max(2px, 0.3cqi) max(2px, 0.3cqi) 0px #000; transition: transform 0.1s;
+            flex: 1 1 auto; min-width: fit-content; max-width: 200px;
+        }
+        .ctrl-btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px #000; }
+        .btn-dice { background: #E74C3C; color: #FFF; font-size: clamp(14px, 2cqi, 22px); }
+
+        .highlight-box {
+            position: absolute; inset: 0; border: clamp(3px, 0.6cqi, 8px) solid #C62828;
+            box-shadow: 0 0 10px #C62828 inset; display: none; z-index: 5;
+        }
+
+        .modal-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+            justify-content: center; align-items: center; z-index: 1000; padding: 15px; box-sizing: border-box;
+        }
+        .modal {
+            background: #FFF; padding: clamp(15px, 4vw, 25px); border: clamp(3px, 1vw, 5px) solid #000; border-radius: 12px;
+            width: 100%; max-width: 650px; max-height: 90dvh; overflow-y: auto; text-align: center;
+        }
+        .modal-title-bar { font-size: clamp(18px, 3.5vw, 26px); font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px; text-align: left;}
+        
+        .form-group { margin-bottom: 12px; text-align: left;}
+        .form-group label { font-weight: bold; display: block; margin-bottom: 5px; font-size: clamp(12px, 2vw, 15px); }
+        .form-group textarea, .form-group select { width: 100%; border: 2px solid #ccc; border-radius: 5px; padding: 8px; font-size: 14px; box-sizing: border-box; }
+        .form-group textarea { height: clamp(50px, 10dvh, 80px); resize: vertical; }
+        
+        .file-upload-box { background: #f0f7ff; padding: 12px; border: 1px dashed #0288D1; margin-bottom: 15px; border-radius: 8px; text-align: left;}
+        
+        .history-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: clamp(12px, 2vw, 15px); }
+        .history-table th, .history-table td { border: 1px solid #ddd; padding: 8px; text-align: left; word-break: break-word;}
+        .history-table th { background: #f5f5f5; }
+
+        /* 全螢幕解鎖賀卡動畫 */
+        .unlock-card {
+            background: linear-gradient(135deg, #FFF9C4, #FFF);
+            border: 4px solid #FFB300; border-radius: 16px;
+            padding: 20px; margin: 10px 0; text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .unlock-avatar { font-size: 80px; margin: 10px 0; line-height: 1; }
+
+        @media (max-width: 480px) {
+            #actionButtons { flex-direction: column; }
+            #actionButtons .ctrl-btn { width: 100%; margin-top: 5px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="portrait-warning">👉 最佳體驗：請旋轉手機使用「橫向模式」！</div>
+
+    <div class="board-container" id="board">
+        <div class="judy-token" id="judyToken">🐰</div>
+        <div class="center-area">
+            <div class="mini-toggles">
+                <button id="btnSound" class="toggle-btn active" onclick="toggleSound()" title="音效開關">🔊</button>
+                <button id="btnTimer" class="toggle-btn active" onclick="toggleTimer()" title="計時器開關">⏱️</button>
+            </div>
+
+            <div class="center-title">動物城大富翁 V1</div>
+            <div style="font-weight: bold; color: #555; font-size: clamp(11px, 1.6cqi, 18px);">【動物城模範班級】榮譽榮耀小鎮</div>
+
+            <!-- 🐾 中央放大版動物城小鎮專區 -->
+            <div class="pet-sanctuary">
+                <div class="pet-title" id="petStatusText">🐾 動物城明星小鎮：解鎖 0 / 5 隻吉祥物 (累積答對 0 題)</div>
+                <div class="pet-icons" id="petIcons">🔒 🔒 🔒 🔒 🔒</div>
+            </div>
+
+            <div class="controls">
+                <button class="ctrl-btn btn-dice" onclick="startDraw()" style="flex-basis: 100%;">🐰 開始抽籤！</button>
+                <button class="ctrl-btn" onclick="openDirectDraw()" style="background:#AB47BC; color:#FFF;">🎯 老師指定</button>
+                <button class="ctrl-btn" onclick="resetDrawRound()" style="background:#E74C3C; color:#FFF;">🔄 全盤清空重置</button>
+                <button class="ctrl-btn" onclick="openHistory()" style="background:var(--color-o)">📜 紀錄與存檔</button>
+                <button class="ctrl-btn" onclick="openSettings()" style="background:#0288D1; color:#FFF">⚙️ 設定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 老師指定學生視窗 -->
+    <div class="modal-overlay" id="directModal">
+        <div class="modal">
+            <div class="modal-title-bar">🎯 老師指定學生回答</div>
+            <div class="form-group">
+                <label>請選擇要指定的同學：</label>
+                <select id="directSelect" style="font-size: 16px; padding: 8px;"></select>
+            </div>
+            <div style="display:flex; gap:10px; margin-top:20px; justify-content: flex-end;">
+                <button class="ctrl-btn" onclick="closeDirectModal()">取消</button>
+                <button class="ctrl-btn" onclick="executeDirectDraw()" style="background:#AB47BC; color:#FFF;">開始指定跳轉</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 系統設定視窗 -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-title-bar">⚙️ 系統設定</div>
+            
+            <div class="file-upload-box">
+                <label>📁 匯入 Excel/CSV/TXT 學生名單</label>
+                <input type="file" id="fileInput" accept=".xlsx, .xls, .csv, .txt" onchange="handleFileUpload(event)">
+            </div>
+
+            <div class="file-upload-box" style="background:#f3e5f5; border-color:#8e24aa;">
+                <label>📥 載入 JSON 遊戲進度檔 (還原舊地圖與建築)</label>
+                <input type="file" id="jsonInput" accept=".json" onchange="handleJsonLoad(event)">
+            </div>
+            
+            <div class="form-group">
+                <label>⏱️ 預設回答時間</label>
+                <select id="timerSelect">
+                    <option value="0">不計時（無壓力模式）</option>
+                    <option value="30" selected>30 秒</option>
+                    <option value="45">45 秒</option>
+                    <option value="60">60 秒</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>1. 名單 (格式：學號,姓名 或 直接輸入姓名)</label>
+                <textarea id="inputStudents">王大明
+陳小華
+林志明
+張春嬌
+李大仁
+黃阿郎
+趙子龍
+孫悟空
+豬八戒
+沙悟淨
+曹操
+劉備
+關羽
+張飛
+周瑜
+諸葛亮
+陸遜
+司馬懿
+夏侯惇
+許褚
+張遼
+甘寧
+太史慈
+魏延
+姜維</textarea>
+            </div>
+            <div class="form-group"><label>2. 【✨閃亮機會】內容（包含放鬆與互動卡）</label><textarea id="inputChance">🧘 [伸展放鬆卡] 全班集體起立伸展肩頸 10 秒，全員獲得精神補給！
+讚美卡：請回答者說出坐在隔壁同學的一個優點，即可獲得回答提示！
+下一位挑戰者可先看課本 10 秒再回答
+下一位挑戰者可請老師提示一個關鍵字
+下一位挑戰者可先排除一個錯誤選項
+下一位挑戰者可多想 15 秒
+下一位挑戰者可請一位同學提供一個提示
+下一位挑戰者可用畫圖輔助說明
+下一位挑戰者可用自己的話回答，不必背課本原句
+下一位挑戰者可先說出兩個可能答案再選一個
+下一位挑戰者可請老師把題目再念一次
+下一位挑戰者可從兩道題目中選一道回答
+下一位挑戰者若答錯，可再修正一次
+下一位挑戰者可與同桌討論 20 秒後回答
+下一位挑戰者可先看黑板上的提示再回答
+下一位挑戰者可把答案分成兩步慢慢說</textarea></div>
+            <div class="form-group"><label>3. 【💢驚奇命運】內容（國中生趣味互動版）</label><textarea id="inputDestiny">🤝 [神隊友卡] 請指定一位好朋友（神隊友）陪你一起討論回答！
+用模仿台語或英文的腔調回答這一題
+回答問題前，先對全班做一個指定的加油動作
+請用最深情的語氣把答案唸出來
+先說一個與這題有關的冷笑話再回答
+下一位挑戰者要先說明一個理由，再給答案
+下一位挑戰者要用一句完整的話回答
+下一位挑戰者要舉一個生活中的例子
+下一位挑戰者要指出一個容易搞錯的地方
+下一位挑戰者要用「因為……所以……」回答
+下一位挑戰者要先說出題目中的一個關鍵字
+下一位挑戰者要比較兩個選項哪裡不同
+下一位挑戰者要用自己的話改述題目
+下一位挑戰者要說出一個支持答案的線索
+下一位挑戰者要先預測，再說出原因
+下一位挑戰者要把答案濃縮成十個字以內</textarea></div>
+            <div class="form-group"><label>4. 【💡新奇題目】內容</label><textarea id="inputNovelty">用一句話說出今天學到的新知
+說出題目中的一個關鍵字
+畫出一個能幫助理解答案的小圖
+用生活經驗舉一個例子
+說出一個你想繼續追問的問題
+把答案用自己的話講一次
+用「因為……所以……」說明理由
+先預測結果，再說明原因
+說出一個常見的誤解
+用一句話比較兩個概念
+指出答案中的一個重要線索
+把這題改成一個選擇題
+想一個可以驗證想法的小實驗
+說出實驗中要保持相同的一個條件
+說出可以觀察或測量的一件事
+說明這個知識在生活中哪裡用得到
+用十個字以內總結你的想法
+想一個好記的提示語
+說出一個讓你改變想法的證據
+把這個概念教給第一次聽到的人
+找出題目中最重要的一句話
+說出你最有把握的一步
+說出「我知道」與「我猜測」各一項
+為今天的知識取一個小標題</textarea></div>
+            <div class="form-group"><label>5. 【🏠 建築物推薦清單】</label>
+            <textarea id="inputBuildings" style="border-color:#FFCA28;">動物城警局
+冰川鎮別墅
+雨林區樹屋
+撒哈拉度假村
+草原生態園區
+小兔子科學研究所
+狐狸偵探事務所
+水獺河畔圖書館
+長頸鹿觀星台
+貓頭鷹夜讀書屋
+熊貓竹林實驗室
+海豚海洋觀察站
+企鵝冰晶博物館
+松鼠橡果銀行
+刺蝟種子花園
+樹懶慢慢咖啡館
+羊駝雲朵郵局
+浣熊資源回收站
+蜜蜂花粉補給站
+河馬水岸運動中心
+狐狸森林電影院
+兔子胡蘿蔔溫室
+鯨魚藍海展覽館
+貓咪月光天文館
+小熊暖心醫護站
+斑馬條紋藝術館
+青蛙池塘氣象站
+蝴蝶變身觀察屋
+水豚悠閒公園
+動物城知識補給站</textarea></div>
+            
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;">
+                <button class="ctrl-btn" onclick="closeSettings()">取消</button>
+                <button class="ctrl-btn" onclick="applySettings()" style="background:#4CAF50; color:#FFF">套用設定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 歷史紀錄與存檔視窗 -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal">
+            <div class="modal-title-bar">📜 歷史紀錄與進度存檔</div>
+            <div style="max-height: max(200px, 35dvh); overflow-y: auto;">
+                <table class="history-table" id="historyTable">
+                    <thead><tr><th style="width:25%">時間</th><th style="width:25%">對象</th><th>詳細內容</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div style="display:flex; gap:10px; margin-top:15px; flex-wrap:wrap; justify-content: space-between;">
+                <button class="ctrl-btn" onclick="closeHistory()" style="flex:1;">關閉</button>
+                <button class="ctrl-btn" onclick="exportJsonState()" style="background:#8E24AA; color:#FFF; flex:2;">💾 匯出 JSON 進度備份檔</button>
+                <button class="ctrl-btn" onclick="exportHistory()" style="background:#2E7D32; color:#FFF; flex:2;">📊 匯出 Excel/CSV 紀錄</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 抽中事件彈出視窗 -->
+    <div class="modal-overlay" id="eventModal">
+        <div class="modal">
+            <h2 id="eventTitle" style="font-size:clamp(22px, 5vw, 36px); color:#E74C3C; margin-top:0;">🎯 抽中了！</h2>
+            <div id="unlockContainer"></div>
+            <p id="eventDesc" style="font-size:clamp(16px, 3.5vw, 24px); font-weight:bold; margin: 10px 0;"></p>
+            
+            <div id="timerArea" class="timer-box">⏱️ <span id="timeCount">30</span> 秒</div>
+
+            <div id="noveltyArea" style="margin-top:10px; padding:10px; background:#F1F8E9; border-radius:8px; display:none;">
+                <div style="color:#2E7D32; font-size:14px;">💡 新奇挑戰：</div>
+                <div id="noveltyTask" style="font-size:clamp(15px, 3vw, 18px); color:#1B5E20; font-weight:bold;"></div>
+            </div>
+            
+            <div id="actionButtons" style="display: flex; gap: 10px; justify-content: center; margin-top:20px;"></div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'zootopia_monopoly_v1_renamed';
+        const CONTENT_VERSION = 1;
+
+        // 建築物升級對照（精簡顯示，絕不破版溢出）
+        const BUILDING_LEVELS = [
+            { level: 1, icon: '🛖', name: '木屋', css: 'level-1' },
+            { level: 2, icon: '🏡', name: '別墅', css: 'level-2' },
+            { level: 3, icon: '🏢', name: '大樓', css: 'level-3' },
+            { level: 4, icon: '🏰', name: '城堡', css: 'level-4' }
+        ];
+
+        // 班級吉祥物解鎖清單
+        const PET_UNLOCKS = [
+            { threshold: 5, icon: '🐰', name: '胡蘿蔔小兔' },
+            { threshold: 10, icon: '🦊', name: '偵探小狐狸' },
+            { threshold: 15, icon: '🦥', name: '樹懶慢慢' },
+            { threshold: 20, icon: '🐆', name: '快豹警官' },
+            { threshold: 25, icon: '🦁', name: '獅丁格市長' }
+        ];
+
+        let students = [], chanceList = [], destinyList = [], noveltyList = [], buildingList = [];
+        let cellsData = [], cellCoordinates = [], currentPos = 0, isDrawing = false;
+        let gameHistory = [], drawPool = [], drawRound = 1, lastDrawn = null;
+        let buildings = {}, totalCorrectCount = 0;
+        let countdownTimer = null, drawTimer = null;
+        let soundEnabled = true, timerEnabled = true, timerDuration = 30, audioCtx = null;
+        let targetPos = null;
+
+        const $ = id => document.getElementById(id);
+        const lines = id => $(id).value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+        const sameNames = (a,b) => a.length === b.length && a.every((x,i) => x === b[i]);
+
+        function shuffleArray(items) {
+            const result = items.slice();
+            for (let i = result.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [result[i], result[j]] = [result[j], result[i]];
+            }
+            return result;
+        }
+
+        // 不重複洗牌抽籤池
+        function newPool() {
+            const studentCellIndices = [];
+            cellsData.forEach((cell, idx) => {
+                if (cell.type === 'student') studentCellIndices.push(idx);
+            });
+
+            drawPool = shuffleArray(studentCellIndices);
+            if (studentCellIndices.length > 1 && drawPool[drawPool.length - 1] === lastDrawn) {
+                const swap = drawPool.findIndex(x => x !== lastDrawn);
+                [drawPool[swap], drawPool[drawPool.length - 1]] = [drawPool[drawPool.length - 1], drawPool[swap]];
+            }
+        }
+
+        function updatePetDisplay() {
+            let unlockedIcons = "";
+            let unlockedCount = 0;
+
+            PET_UNLOCKS.forEach(pet => {
+                if (totalCorrectCount >= pet.threshold) {
+                    unlockedIcons += pet.icon + " ";
+                    unlockedCount++;
+                } else {
+                    unlockedIcons += "🔒 ";
+                }
+            });
+
+            $('petStatusText').textContent = `🐾 動物城明星小鎮：解鎖 ${unlockedCount} / 5 隻吉祥物 (累積答對 ${totalCorrectCount} 題)`;
+            $('petIcons').textContent = unlockedIcons;
+        }
+
+        function getFullStateObject() {
+            return {
+                students, chanceList, destinyList, noveltyList, buildingList,
+                gameHistory, drawPool, drawRound, lastDrawn, currentPos, buildings,
+                totalCorrectCount, soundEnabled, timerEnabled, timerDuration,
+                contentVersion: CONTENT_VERSION
+            };
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(getFullStateObject()));
+            } catch (error) { console.warn('無法儲存本機資料', error); }
+        }
+
+        function loadStateFromObject(data) {
+            if (!Array.isArray(data.students) || !data.students.length || !data.students.every(x => typeof x === 'string')) return false;
+            students = data.students;
+            for (const key of ['chanceList','destinyList','noveltyList','buildingList','gameHistory']) {
+                if (Array.isArray(data[key])) { if (key === 'gameHistory') gameHistory = data[key]; else if (key === 'chanceList') chanceList = data[key]; else if (key === 'destinyList') destinyList = data[key]; else if (key === 'noveltyList') noveltyList = data[key]; else buildingList = data[key]; }
+            }
+            drawRound = Number.isSafeInteger(data.drawRound) && data.drawRound > 0 ? data.drawRound : 1;
+            lastDrawn = data.lastDrawn;
+            drawPool = Array.isArray(data.drawPool) ? data.drawPool : [];
+            currentPos = Number.isInteger(data.currentPos) && data.currentPos >= 0 && data.currentPos < 32 ? data.currentPos : 0;
+            buildings = data.buildings && typeof data.buildings === 'object' ? data.buildings : {};
+            totalCorrectCount = Number.isInteger(data.totalCorrectCount) ? data.totalCorrectCount : 0;
+            soundEnabled = data.soundEnabled !== false;
+            timerEnabled = data.timerEnabled !== false;
+            timerDuration = data.timerDuration !== undefined ? data.timerDuration : 30;
+            return true;
+        }
+
+        function loadState() {
+            try {
+                const value = localStorage.getItem(STORAGE_KEY);
+                if (!value) return false;
+                return loadStateFromObject(JSON.parse(value));
+            } catch (error) { console.warn('無法載入本機資料', error); return false; }
+        }
+
+        function restoreSettingsUI() {
+            $('inputStudents').value = students.join('\n');
+            for (const [id, list] of [['inputChance', chanceList],['inputDestiny',destinyList],['inputNovelty',noveltyList],['inputBuildings',buildingList]]) $(id).value = list.join('\n');
+            $('btnSound').classList.toggle('active',soundEnabled);
+            $('btnSound').textContent = soundEnabled ? '🔊' : '🔇';
+            $('btnTimer').classList.toggle('active',timerEnabled);
+            $('btnTimer').textContent = timerEnabled ? '⏱️' : '⏳';
+            $('timerSelect').value = timerDuration;
+        }
+
+        window.addEventListener('load', () => {
+            if (loadState()) { restoreSettingsUI(); generateBoard(); updatePetDisplay(); }
+            else applySettings();
+        });
+        window.addEventListener('resize', () => setTimeout(updateCoordinates, 100));
+
+        function getAudio() {
+            if (!soundEnabled) return null;
+            try {
+                if (!audioCtx) {
+                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                    if (!AudioContextClass) return null;
+                    audioCtx = new AudioContextClass();
+                }
+                if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+                return audioCtx;
+            } catch (error) { return null; }
+        }
+
+        function playTone(freq, delay = 0, duration = .1) {
+            const ctx = getAudio(); if (!ctx) return;
+            const osc = ctx.createOscillator(), gain = ctx.createGain(), start = ctx.currentTime + delay;
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.frequency.setValueAtTime(freq,start);
+            gain.gain.setValueAtTime(.08,start);
+            gain.gain.exponentialRampToValueAtTime(.001,start+duration);
+            osc.start(start); osc.stop(start+duration);
+        }
+
+        function playTickSound() { playTone(600); }
+        function playWinSound() { [440,554,659,880].forEach((f,i) => playTone(f,i*.1,.45)); }
+        function toggleSound() { soundEnabled = !soundEnabled; $('btnSound').classList.toggle('active',soundEnabled);$('btnSound').textContent = soundEnabled ? '🔊' : '🔇'; saveState(); }
+        function toggleTimer() {
+            timerEnabled = !timerEnabled;
+            $('btnTimer').classList.toggle('active',timerEnabled);$('btnTimer').textContent = timerEnabled ? '⏱️' : '⏳';
+            if (!timerEnabled) { clearInterval(countdownTimer); $('timerArea').style.display = 'none'; }
+            saveState();
+        }
+
+        function parseStudent(line) {
+            const parts = line.split(/[,，\t]/).map(x => x.trim());
+            if (parts.length > 1 && /^\d+$/.test(parts[0])) return parts[1];
+            return line.trim();
+        }
+
+        function applySettings() {
+            if (isDrawing) { alert('請等抽籤結束後再套用設定。'); return; }
+            const parsed = lines('inputStudents').map(parseStudent).filter(Boolean).filter(x => !/^(姓名|座號|學號)$/.test(x));
+            if (!parsed.length) { alert('請至少輸入一位學生。'); return; }
+            const changed = !sameNames(students, parsed);
+            students = parsed;
+            chanceList = lines('inputChance'); destinyList = lines('inputDestiny');
+            noveltyList = lines('inputNovelty'); buildingList = lines('inputBuildings');
+            timerDuration = parseInt($('timerSelect').value, 10);
+            timerEnabled = (timerDuration > 0);
+            $('btnTimer').classList.toggle('active', timerEnabled);$('btnTimer').textContent = timerEnabled ? '⏱️' : '⏳';
+
+            if (changed) {
+                currentPos = 0; buildings = {}; drawRound = 1; lastDrawn = null;
+                generateBoard(); newPool();
+                $('judyToken').style.display = 'none';
+            }
+            saveState(); closeSettings(); updatePetDisplay();
+        }
+
+        // 🌟 數學距離平均分配：交錯均勻佈局「機會」與「命運」
+        function generateBoard() {
+            const board = $('board');
+            board.querySelectorAll('.cell').forEach(el => el.remove());
+            cellsData = [];
+            const coords = [];
+            for (let i=1;i<=10;i++) coords.push({c:i,r:1});
+            for (let i=2;i<=7;i++) coords.push({c:10,r:i});
+            for (let i=10;i>=1;i--) coords.push({c:i,r:8});
+            for (let i=7;i>=2;i--) coords.push({c:1,r:i});
+
+            const totalStudentCells = 28;
+            const extraCount = totalStudentCells - students.length;
+            
+            // 計算補充填補數組
+            const fillItems = [];
+            for (let i = 0; i < extraCount; i++) {
+                fillItems.push(i % 2 === 0 ? { type: 'chance', icon: '❓', label: '機會' } : { type: 'destiny', icon: '❗', label: '命運' });
+            }
+
+            // 數學均勻插值算法
+            const boardLayout = [];
+            let studentIdx = 0, fillIdx = 0;
+            for (let i = 0; i < totalStudentCells; i++) {
+                if (extraCount > 0 && Math.floor((i + 1) * extraCount / totalStudentCells) > Math.floor(i * extraCount / totalStudentCells) && fillIdx < fillItems.length) {
+                    boardLayout.push(fillItems[fillIdx++]);
+                } else {
+                    boardLayout.push(students[studentIdx % students.length]);
+                    studentIdx++;
+                }
+            }
+
+            let layoutIdx = 0;
+            coords.forEach((pos, idx) => {
+                const cell = document.createElement('div'); cell.className = 'cell'; cell.id = `cell-${idx}`;
+                cell.style.gridColumn = pos.c; cell.style.gridRow = pos.r;
+                
+                let type = 'student', icon = '🐾', label = '';
+
+                // 固定 4 角落
+                if (idx === 0) { type = 'chance'; icon = '❓'; label = '機會'; cell.classList.add('corner', 'chance'); }
+                else if (idx === 9) { type = 'destiny'; icon = '❗'; label = '命運'; cell.classList.add('corner', 'destiny'); }
+                else if (idx === 15) { type = 'chance'; icon = '❓'; label = '機會'; cell.classList.add('corner', 'chance'); }
+                else if (idx === 24) { type = 'destiny'; icon = '❗'; label = '命運'; cell.classList.add('corner', 'destiny'); }
+                else {
+                    const item = boardLayout[layoutIdx++];
+                    if (typeof item === 'string') {
+                        type = 'student'; icon = '🐾'; label = item;
+                        cell.style.backgroundColor = ['#FFF9C4','#E1F5FE','#FCE4EC','#E8F5E9','#FFE082'][idx % 5];
+                    } else {
+                        type = item.type; icon = item.icon; label = item.label;
+                        cell.classList.add('corner', item.type);
+                    }
+                }
+
+                const iconDiv = document.createElement('div'); iconDiv.className = 'cell-icon'; iconDiv.textContent = icon;
+                const labelDiv = document.createElement('div'); labelDiv.className = 'cell-text'; labelDiv.textContent = label;
+                const area = document.createElement('div'); area.className = 'building-area'; area.id = `build-${idx}`;
+                if (buildings[idx]) addBuildingBadge(area, buildings[idx]);
+                const highlight = document.createElement('div'); highlight.className = 'highlight-box'; highlight.id = `box-${idx}`;
+                
+                cell.append(iconDiv, labelDiv, area, highlight); board.appendChild(cell);
+                cellsData.push({ type, label, icon });
+            });
+            
+            if (!drawPool.length) newPool();
+            setTimeout(updateCoordinates, 100);
+        }
+
+        // 精簡建築標籤（預防名稱溢出）
+        function addBuildingBadge(area, bData) {
+            const levelInfo = BUILDING_LEVELS.find(l => l.level === bData.level) || BUILDING_LEVELS[0];
+            const badge = document.createElement('div'); 
+            badge.className = `building-badge ${levelInfo.css}`; 
+            badge.textContent = `${levelInfo.icon} Lv.${bData.level}`;
+            area.replaceChildren(badge);
+        }
+
+        function updateCoordinates() {
+            const board = $('board'), rect = board.getBoundingClientRect();
+            cellCoordinates = Array.from(board.querySelectorAll('.cell'), cell => {
+                const r = cell.getBoundingClientRect();
+                return { x: r.left - rect.left + r.width / 2, y: r.top - rect.top + r.height / 2 };
+            });
+            const pos = cellCoordinates[currentPos], token = $('judyToken');
+            if (pos && token.style.display !== 'none') { token.style.left = `${pos.x}px`; token.style.top = `${pos.y}px`; }
+        }
+
+        // 公平不重複抽籤
+        function startDraw() {
+            if (isDrawing || !students.length) return;
+            isDrawing = true; getAudio();
+
+            if (!drawPool.length) {
+                drawRound++;
+                newPool();
+            }
+
+            targetPos = drawPool.pop();
+            lastDrawn = targetPos;
+
+            let steps = (targetPos - currentPos + cellsData.length) % cellsData.length;
+            if (steps < 15) steps += cellsData.length;
+
+            drawTimer = setTimeout(() => startJumping(steps), 100);
+        }
+
+        function openDirectDraw() {
+            if (isDrawing) return;
+            const select = $('directSelect');
+            select.replaceChildren();
+            cellsData.forEach((cell, idx) => {
+                if (cell.type === 'student') {
+                    const opt = document.createElement('option');
+                    opt.value = idx;
+                    opt.textContent = `${cell.label} (格子 #${idx})`;
+                    select.appendChild(opt);
+                }
+            });
+            $('directModal').style.display = 'flex';
+        }
+        function closeDirectModal() { $('directModal').style.display = 'none'; }
+
+        function executeDirectDraw() {
+            const selectIdx = parseInt($('directSelect').value, 10);
+            closeDirectModal();
+            isDrawing = true; getAudio();
+
+            targetPos = selectIdx;
+            const poolIndex = drawPool.indexOf(targetPos);
+            if (poolIndex !== -1) drawPool.splice(poolIndex, 1);
+            lastDrawn = targetPos;
+
+            let steps = (targetPos - currentPos + cellsData.length) % cellsData.length;
+            if (steps < 10) steps += cellsData.length;
+
+            drawTimer = setTimeout(() => startJumping(steps), 100);
+        }
+
+        function startJumping(steps) {
+            $('judyToken').style.display = 'flex'; let speed = 100;
+            const run = () => {
+                $(`box-${currentPos}`).style.display = 'none';
+                currentPos = (currentPos + 1) % cellsData.length;
+                $(`box-${currentPos}`).style.display = 'block';
+                playTickSound();
+                const p = cellCoordinates[currentPos], token = $('judyToken');
+                if (p) { token.style.left = `${p.x}px`; token.style.top = `${p.y}px`; token.classList.remove('is-jumping'); void token.offsetWidth; token.style.animationDuration = `${speed / 1000}s`; token.classList.add('is-jumping'); }
+                steps--;
+                if (steps > 0) { if (steps < 8) speed += 40; drawTimer = setTimeout(run, speed); }
+                else drawTimer = setTimeout(showResult, 500);
+            };
+            run();
+        }
+
+        function startCountdown() {
+            if (!timerEnabled || timerDuration <= 0) return;
+            const area = $('timerArea'); let remaining = timerDuration;
+            area.style.display = 'block'; area.classList.remove('warning');
+            area.replaceChildren('⏱️ ');
+            const count = document.createElement('span'); count.textContent = remaining;
+            area.append(count, ' 秒');
+            clearInterval(countdownTimer);
+            countdownTimer = setInterval(() => {
+                count.textContent = --remaining;
+                if (remaining <= 10 && remaining > 0) area.classList.add('warning');
+                if (remaining <= 0) { clearInterval(countdownTimer); countdownTimer = null; area.textContent = '🚨 時間到！'; }
+            }, 1000);
+        }
+
+        function actionButton(label, callback, background, color = '#000') {
+            const button = document.createElement('button'); button.className = 'ctrl-btn';
+            button.textContent = label; button.style.background = background; button.style.color = color;
+            button.style.flex = '1'; button.style.fontSize = '18px'; button.addEventListener('click', callback);
+            $('actionButtons').append(button);
+        }
+
+        function showResult() {
+            const res = cellsData[currentPos];
+            $('noveltyArea').style.display = 'none'; $('timerArea').style.display = 'none';$('unlockContainer').replaceChildren();
+            clearInterval(countdownTimer); $('actionButtons').replaceChildren();
+            let target = "", detail = "";
+            playWinSound();
+
+            if (res.type === 'student') {
+                target = res.label;
+                const currentB = buildings[currentPos];
+                const currentLv = currentB ? currentB.level : 0;
+                
+                // 20% 觸發路過神隊友
+                const isPasserBy = (Math.random() < 0.2 && students.length > 1);
+                let passerName = "";
+                if (isPasserBy) {
+                    const otherStudents = students.filter(s => s !== target);
+                    passerName = otherStudents[Math.floor(Math.random() * otherStudents.length)];
+                }
+
+                $('eventTitle').textContent = `🎯 專屬領地：${target}`;
+                
+                let descText = "";
+                if (isPasserBy) {
+                    descText = `🐾 【驚喜喜訊】${passerName} 路過 ${target} 的領地！\n${target} 可以指定 ${passerName} 作為神隊友一起討論！\n`;
+                }
+
+                if (currentLv === 0) {
+                    descText += `請 ${target} 同學回答問題！答對可建立專屬 [Lv.1 木屋] 🛖`;
+                } else if (currentLv < 4) {
+                    const nextLvInfo = BUILDING_LEVELS[currentLv];
+                    descText += `恭喜 ${target} 再次停留在自己家！答對可將領地升級為 [Lv.${nextLvInfo.level} ${nextLvInfo.name}] ${nextLvInfo.icon}！`;
+                } else {
+                    descText += `皇冠等級！${target} 已經擁有最高等級的 [Lv.4 城堡] 🏰！答對可為全班吉祥物小窩加分！`;
+                }
+
+                $('eventDesc').textContent = descText;
+                detail = `專屬挑戰者：${target}${isPasserBy ? ` (神隊友：${passerName})` : ''}`;
+                startCountdown();
+
+                if (noveltyList.length) {
+                    const task = noveltyList[Math.floor(Math.random() * noveltyList.length)];
+                    $('noveltyArea').style.display = 'block';$('noveltyTask').textContent = task;
+                    detail += ` (任務：${task})`;
+                }
+
+                actionButton(currentLv === 0 ? '🛖 答對蓋房子' : '🌟 答對升級領地', buildOrUpgradeHouse, '#FFB300');
+                actionButton('❌ 未答對/關閉', closeEventModal, '#E0E0E0');
+
+            } else {
+                const list = res.type === 'chance' ? chanceList : destinyList;
+                const randomStudent = students[Math.floor(Math.random() * students.length)];
+                const content = list.length ? list[Math.floor(Math.random() * list.length)] : '尚未設定內容';
+                
+                $('eventTitle').textContent = res.type === 'chance' ? '✨ 閃亮機會' : '💢 驚奇命運';
+                $('eventDesc').textContent = `【執行對象：${randomStudent}】\n${content}`; 
+                detail = `對象：${randomStudent} ｜ ${content}`;
+
+                actionButton('確認 🐰', closeEventModal, '#0288D1', '#FFF');
+            }
+
+            gameHistory.push({ time: new Date().toLocaleString('zh-TW'), target: target || res.label, detail });
+            saveState(); $('eventModal').style.display = 'flex';
+        }
+
+        // 升級建築與吉祥物大圖慶祝賀卡
+        function buildOrUpgradeHouse() {
+            const currentB = buildings[currentPos];
+            const nextLv = currentB ? Math.min(currentB.level + 1, 4) : 1;
+            const nextLvInfo = BUILDING_LEVELS.find(l => l.level === nextLv);
+
+            buildings[currentPos] = { level: nextLv };
+            addBuildingBadge($(`build-${currentPos}`), buildings[currentPos]);
+
+            totalCorrectCount++;
+            updatePetDisplay();
+
+            const last = gameHistory[gameHistory.length - 1];
+            if (last) last.detail += ` 👉 成功建立/升級：Lv.${nextLv} ${nextLvInfo.name}`;
+            saveState(); 
+
+            // 檢查是否觸發吉祥物霸屏大賀卡
+            const unlockedPet = PET_UNLOCKS.find(p => p.threshold === totalCorrectCount);
+            if (unlockedPet) {
+                $('eventTitle').textContent = `🎉 全班解鎖全新吉祥物！`;
+                $('eventDesc').textContent = `恭喜全班累積答對 ${totalCorrectCount} 題！解鎖：${unlockedPet.name}`;
+                
+                const card = document.createElement('div');
+                card.className = 'unlock-card';
+                card.innerHTML = `<div class="unlock-avatar">${unlockedPet.icon}</div><div style="font-size:22px; font-weight:bold; color:#D84315;">【${unlockedPet.name}】驚喜登場！</div>`;
+                $('unlockContainer').replaceChildren(card);$('actionButtons').replaceChildren();
+                actionButton('太棒了！歡呼 🥳', closeEventModal, '#4CAF50', '#FFF');
+            } else {
+                closeEventModal();
+            }
+        }
+
+        // 📥 匯出 JSON 遊戲進度檔
+        function exportJsonState() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(getFullStateObject(), null, 2));
+            const link = document.createElement('a');
+            link.setAttribute("href", dataStr);
+            link.setAttribute("download", `動物城大富翁進度檔_${Date.now()}.json`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        }
+
+        // 📂 載入 JSON 遊戲進度檔
+        function handleJsonLoad(e) {
+            const file = e.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const data = JSON.parse(event.target.result);
+                    if (loadStateFromObject(data)) {
+                        saveState();
+                        restoreSettingsUI();
+                        generateBoard();
+                        updatePetDisplay();
+                        alert('🎉 JSON 遊戲進度檔載入成功！地圖與建築已完全復原！');
+                        closeSettings();
+                    } else {
+                        throw new Error('存檔格式不符');
+                    }
+                } catch (err) {
+                    alert('載入失敗：請確認是否上傳正確的 JSON 進度備份檔。');
+                }
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        }
+
+        function openHistory() {
+            const tbody = document.querySelector('#historyTable tbody'); tbody.replaceChildren();
+            if (!gameHistory.length) {
+                const row = tbody.insertRow(), cell = row.insertCell(); cell.colSpan = 3; cell.style.textAlign = 'center'; cell.textContent = '尚無紀錄';
+            } else gameHistory.forEach(h => {
+                const row = tbody.insertRow();
+                for (const field of ['time','target','detail']) row.insertCell().textContent = String(h[field] ?? '');
+            });
+            $('historyModal').style.display = 'flex';
+        }
+
+        function exportHistory() {
+            if (!gameHistory.length) { alert('目前沒有紀錄可以匯出！'); return; }
+            const csvValue = value => `"${String(value ?? '').replace(/"/g, '""')}"`;
+            const rows = [['時間', '對象/地點', '詳細內容'], ...gameHistory.map(h => [h.time, h.target, h.detail])];
+            const blob = new Blob(['\uFEFF' + rows.map(row => row.map(csvValue).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob), link = document.createElement('a');
+            link.href = url; link.download = `大富翁紀錄_${Date.now()}.csv`; link.click();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        function rowsToNames(rows) {
+            const clean = rows.map(row => row.map(v => String(v ?? '').trim())).filter(row => row.some(Boolean));
+            const header = clean[0] || [];
+            const nameIndex = header.findIndex(v => /姓名|名字/.test(v));
+            const data = nameIndex >= 0 ? clean.slice(1) : clean;
+            return data.map(row => row[nameIndex >= 0 ? nameIndex : 0] || '').filter(Boolean).join('\n');
+        }
+
+        async function handleFileUpload(e) {
+            const file = e.target.files[0]; if (!file) return;
+            try {
+                let rows;
+                if (/\.(csv|txt)$/i.test(file.name)) {
+                    const bytes = await file.arrayBuffer();
+                    let content = new TextDecoder('utf-8', { fatal: true });
+                    try { content = content.decode(bytes); }
+                    catch (_) { content = new TextDecoder('big5').decode(bytes); }
+                    if (/\.csv$/i.test(file.name)) {
+                        if (typeof XLSX === 'undefined') throw new Error('Excel 讀取元件尚未載入，請確認網路連線。');
+                        const book = XLSX.read(content, { type: 'string' });
+                        rows = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]], { header: 1, defval: '' });
+                    } else rows = content.split(/\r?\n/).map(line => line.split(/[,，\t]/));
+                } else {
+                    if (typeof XLSX === 'undefined') throw new Error('Excel 讀取元件尚未載入，請確認網路連線。');
+                    const book = XLSX.read(await file.arrayBuffer(), { type: 'array' });
+                    rows = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]], { header: 1, defval: '' });
+                }
+                const names = rowsToNames(rows);
+                if (!names) throw new Error('檔案中找不到學生姓名。');
+                $('inputStudents').value = names;
+            } catch (error) { alert(`匯入失敗：${error.message}`); }
+            e.target.value = '';
+        }
+
+        // 🔄 徹底清空重置（歸零全新課堂）
+        function resetDrawRound() {
+            if (isDrawing) return;
+            if (!confirm('⚠️ 確定要全盤清空重置？這會清空地圖上的所有建築、歷史紀錄與吉祥物進度，開啟完全獨立的全新課堂！')) return;
+            
+            buildings = {};
+            gameHistory = [];
+            totalCorrectCount = 0;
+            drawRound = 1;
+            lastDrawn = null;
+            
+            generateBoard();
+            newPool();
+            updatePetDisplay();
+            saveState();
+            
+            alert('🔄 重置完成！已還原為完全全新的空白棋盤！');
+        }
+
+        function closeEventModal() { $('eventModal').style.display = 'none'; isDrawing = false; clearInterval(countdownTimer); countdownTimer = null; }
+        function openSettings() { if (isDrawing) return; $('settingsModal').style.display = 'flex'; }
+        function closeSettings() { $('settingsModal').style.display = 'none'; restoreSettingsUI(); }
+        function closeHistory() { $('historyModal').style.display = 'none'; }
+    </script>
+</body>
+</html>

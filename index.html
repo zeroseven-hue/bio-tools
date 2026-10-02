@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>國中生物與課堂互動教學工具大廳 - bio-tools (大廳三)</title>
-  <link rel="stylesheet" href="style.css?v=1.0">
+  <link rel="stylesheet" href="style.css?v=1.1">
   <!-- QRCode.js CDN for QR Code Generation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
@@ -37,12 +37,108 @@
     <main class="lobby-main">
       <!-- 🛠️ 教學工具卡片區域 -->
       <section class="tools-section">
-        <h2>🛠️ 課堂教學工具選單</h2>
+        <h2>🛠️ 課堂教學工具選單 (共 9 款精選工具)</h2>
         <div class="tools-grid">
 
-          <!-- 工具 1: 課堂專注計時與倒數碼表 -->
+          <!-- 工具 1: 專注守護者 哥吉拉課堂挑戰 -->
+          <div class="tool-card card-godzilla">
+            <div class="card-badge bg-orange">熱門強檔</div>
+            <div class="card-icon">🦖</div>
+            <h3>專注守護者 ｜ 哥吉拉課堂挑戰</h3>
+            <p class="card-desc">結合麥克風教室音量監測與哥吉拉視圖！保持安靜讓哥吉拉熟睡，太吵雜將喚醒哥吉拉噴發原子吐息。</p>
+            <div class="card-tags">
+              <span>🎤 麥克風音量校準</span>
+              <span>💤 動態動畫</span>
+              <span>🌕 暗色/明亮風格</span>
+            </div>
+            <div class="card-actions">
+              <a href="godzilla/index.html?v=4.0" class="btn-launch btn-orange">🦖 啟動哥吉拉守護者</a>
+            </div>
+          </div>
+
+          <!-- 工具 2: 考場數位黑板 -->
+          <div class="tool-card card-examboard">
+            <div class="card-badge bg-blue">考場必備</div>
+            <div class="card-icon">📝</div>
+            <h3>考場數位黑板 ‧ 時鐘與考程版</h3>
+            <p class="card-desc">護眼灰底大字體考場黑板！即時數位時鐘、考試科目時程排定、注意事項填空與無縫字體縮放投影。</p>
+            <div class="card-tags">
+              <span>🕒 護眼超大時鐘</span>
+              <span>📅 考程時間表</span>
+              <span>📺 全螢幕黑板</span>
+            </div>
+            <div class="card-actions">
+              <a href="exam-board/index.html?v=1.0" class="btn-launch btn-blue">📝 開啟考場黑板</a>
+            </div>
+          </div>
+
+          <!-- 工具 3: 實驗進度與目標管理面板 -->
+          <div class="tool-card card-lab">
+            <div class="card-badge bg-purple">專科教室</div>
+            <div class="card-icon">🧪</div>
+            <h3>實驗進度＆目標管理面板</h3>
+            <p class="card-desc">專科教室與生物實驗必備！支援多組實驗完成進度追蹤、個人缺席/請假登記、目標看板與時間管理。</p>
+            <div class="card-tags">
+              <span>🥼 15組實驗追蹤</span>
+              <span>📋 聯絡簿/目標</span>
+              <span>⚡ 即時面板</span>
+            </div>
+            <div class="card-actions">
+              <a href="lab/index.html?v=1.0" class="btn-launch btn-purple">🧪 開啟實驗面板</a>
+            </div>
+          </div>
+
+          <!-- 工具 4: 戰術儀表板 爆炸計時器 -->
+          <div class="tool-card card-tactical">
+            <div class="card-badge bg-orange">緊張刺激</div>
+            <div class="card-icon">💣</div>
+            <h3>與時間賽跑 ‧ 戰術儀表板</h3>
+            <p class="card-desc">極具臨場感與爆炸視覺效果的倒數計時儀表板！支援脈衝圓環進度條、戰術任務清單與緊急倒數警告。</p>
+            <div class="card-tags">
+              <span>💥 爆炸視覺提示</span>
+              <span>📝 任務清單追蹤</span>
+              <span>🚨 緊急倒數聲</span>
+            </div>
+            <div class="card-actions">
+              <a href="tactical-timer/index.html?v=1.0" class="btn-launch btn-orange">💣 啟動戰術儀表板</a>
+            </div>
+          </div>
+
+          <!-- 工具 5: 課堂分組產生器 (正副組長版) -->
+          <div class="tool-card card-grouping">
+            <div class="card-badge bg-purple">名單管理</div>
+            <div class="card-icon">🎲</div>
+            <h3>課堂分組產生器 (正副組長版)</h3>
+            <p class="card-desc">支援指定正副組長優先分派！匯入 Excel / 座號範圍名單、自動彩帶慶祝動畫與一鍵匯出 Excel 成果。</p>
+            <div class="card-tags">
+              <span>👑 正副組長指定</span>
+              <span>📊 Excel 匯入/匯出</span>
+              <span>🎉 慶祝動畫</span>
+            </div>
+            <div class="card-actions">
+              <a href="grouping-leaders/index.html?v=1.0" class="btn-launch btn-purple">🎲 開啟正副組長分組器</a>
+            </div>
+          </div>
+
+          <!-- 工具 6: Zootopia 大富翁抽籤系統 -->
+          <div class="tool-card card-monopoly-picker">
+            <div class="card-badge bg-blue">遊戲化抽籤</div>
+            <div class="card-icon">🐰</div>
+            <h3>Zootopia 大富翁抽籤系統</h3>
+            <p class="card-desc">茱蒂帶領全班進行棋盤格步數擺盪與隨機抽籤！蓋房子、建築升級與閃亮機會卡互動。</p>
+            <div class="card-tags">
+              <span>🎲 大富翁地圖</span>
+              <span>🏠 答題蓋房</span>
+              <span>✨ 機會命運卡</span>
+            </div>
+            <div class="card-actions">
+              <a href="monopoly-picker/index.html?v=1.0" class="btn-launch btn-blue">🐰 進入大富翁抽籤</a>
+            </div>
+          </div>
+
+          <!-- 工具 7: 課堂專注計時與倒數碼表 -->
           <div class="tool-card card-timer">
-            <div class="card-badge bg-blue">大螢幕必備</div>
+            <div class="card-badge bg-blue">經典版</div>
             <div class="card-icon">⏱️</div>
             <h3>課堂專注計時與倒數碼表</h3>
             <p class="card-desc">專為課堂討論、測驗與隨堂活動設計！支援正計時、倒數計時、快選時間、全螢幕大字體投影與終點鈴聲提醒。</p>
@@ -56,11 +152,11 @@
             </div>
           </div>
 
-          <!-- 工具 2: 學生隨機抽籤與小組分組器 -->
+          <!-- 工具 8: 學生隨機抽籤與小組分組器 -->
           <div class="tool-card card-picker">
             <div class="card-badge bg-purple">公平互動</div>
-            <div class="card-icon">🎲</div>
-            <h3>學生隨機抽籤與小組分組器</h3>
+            <div class="card-icon">🎰</div>
+            <h3>學生隨機大轉盤與抽籤箱</h3>
             <p class="card-desc">動態幸運大轉盤與抽籤箱！一鍵快速匯入學生名單、記憶常用陣容、自動不重複抽籤與公平名單隨機分組。</p>
             <div class="card-tags">
               <span>🎡 幸運大轉盤</span>
@@ -68,11 +164,11 @@
               <span>💾 記憶學生名單</span>
             </div>
             <div class="card-actions">
-              <a href="picker/index.html?v=1.0" class="btn-launch btn-purple">🎲 開啟抽籤分組</a>
+              <a href="picker/index.html?v=1.0" class="btn-launch btn-purple">🎰 開啟轉盤抽籤</a>
             </div>
           </div>
 
-          <!-- 工具 3: 課堂小組記分板與搶答音效器 -->
+          <!-- 工具 9: 課堂小組記分板與搶答音效器 -->
           <div class="tool-card card-scoreboard">
             <div class="card-badge bg-orange">熱烈競賽</div>
             <div class="card-icon">🏆</div>
@@ -102,8 +198,14 @@
               <div class="form-group">
                 <label for="selectTool">選擇要派發的教學工具：</label>
                 <select id="selectTool" class="styled-select">
+                  <option value="godzilla/index.html">🦖 專注守護者 ｜ 哥吉拉課堂挑戰 (Godzilla)</option>
+                  <option value="exam-board/index.html">📝 考場數位黑板 ‧ 時鐘與考程版 (Exam Board)</option>
+                  <option value="lab/index.html">🧪 實驗進度＆目標管理面板 (Lab Management)</option>
+                  <option value="tactical-timer/index.html">💣 與時間賽跑 ‧ 戰術儀表板 (Tactical Timer)</option>
+                  <option value="grouping-leaders/index.html">🎲 課堂分組產生器 (正副組長版)</option>
+                  <option value="monopoly-picker/index.html">🐰 Zootopia 大富翁抽籤系統</option>
                   <option value="timer/index.html">⏱️ 課堂專注計時與倒數碼表 (Timer)</option>
-                  <option value="picker/index.html">🎲 學生隨機抽籤與小組分組器 (Random Picker)</option>
+                  <option value="picker/index.html">🎰 學生隨機大轉盤與抽籤箱 (Random Picker)</option>
                   <option value="scoreboard/index.html">🏆 課堂小組記分板與搶答音效器 (Scoreboard)</option>
                 </select>
               </div>
@@ -138,6 +240,6 @@
     </footer>
   </div>
 
-  <script src="app.js?v=1.0"></script>
+  <script src="app.js?v=1.1"></script>
 </body>
 </html>
