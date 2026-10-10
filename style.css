@@ -1,9 +1,9 @@
-/* bio-tools Main Lobby Style (大廳三) */
+/* bio-tools Main Lobby Style (大廳三) - V2.0 Categorized Collapsible Style */
 :root {
   --primary-color: #2563eb;
   --primary-hover: #1d4ed8;
   --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  --card-bg: rgba(30, 41, 59, 0.7);
+  --card-bg: rgba(30, 41, 59, 0.75);
   --card-border: rgba(255, 255, 255, 0.1);
   --text-main: #f8fafc;
   --text-sub: #94a3b8;
@@ -116,17 +116,141 @@ body {
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
 }
 
-/* 🛠️ 工具卡片區域 */
-.tools-section {
-  margin-bottom: 35px;
+/* Lobby Main Actions & Bar */
+.lobby-bar-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-.tools-section h2 {
-  font-size: 1.5rem;
-  margin-bottom: 20px;
+.lobby-bar-actions h2 {
+  font-size: 1.4rem;
   color: #e2e8f0;
 }
 
+.collapse-all-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-toggle-all {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-toggle-all:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+/* 🛠️ 分類 Section 樣式 */
+.category-section {
+  margin-bottom: 24px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid var(--card-border);
+  border-radius: 18px;
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  background: rgba(30, 41, 59, 0.6);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s ease;
+}
+
+.category-header:hover {
+  background: rgba(30, 41, 59, 0.9);
+}
+
+.cat-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cat-icon {
+  font-size: 1.5rem;
+}
+
+.category-header h3 {
+  font-size: 1.25rem;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.count-badge {
+  font-size: 0.8rem;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+.btn-collapse-toggle {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-collapse-toggle:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+.toggle-arrow {
+  transition: transform 0.3s ease;
+}
+
+/* 折疊收合狀態 */
+.category-body {
+  padding: 24px;
+  transition: max-height 0.35s ease-out, opacity 0.3s ease-out, padding 0.35s ease-out;
+}
+
+.category-section.collapsed .category-body {
+  display: none;
+}
+
+.category-section.collapsed .toggle-arrow {
+  transform: rotate(180deg);
+}
+
+.category-section.collapsed .btn-collapse-toggle {
+  background: rgba(37, 99, 235, 0.15);
+  color: #60a5fa;
+  border-color: rgba(96, 165, 250, 0.3);
+}
+
+/* 🛠️ 工具卡片 Grid 區域 */
 .tools-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -139,7 +263,7 @@ body {
   backdrop-filter: blur(10px);
   border: 1px solid var(--card-border);
   border-radius: 20px;
-  padding: 28px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
@@ -153,8 +277,8 @@ body {
 
 .card-badge {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 18px;
+  right: 18px;
   background: #3b82f6;
   color: white;
   padding: 4px 10px;
@@ -166,50 +290,52 @@ body {
 .card-badge.bg-blue { background: #3b82f6; }
 .card-badge.bg-purple { background: #8b5cf6; }
 .card-badge.bg-orange { background: #f97316; }
+.card-badge.bg-red { background: #ef4444; }
+.card-badge.bg-gold { background: #f59e0b; }
 
 .card-icon {
-  font-size: 3.2rem;
-  margin-bottom: 16px;
+  font-size: 3rem;
+  margin-bottom: 14px;
 }
 
 .tool-card h3 {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   color: #ffffff;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .card-desc {
   color: var(--text-sub);
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   line-height: 1.5;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
   flex-grow: 1;
 }
 
 .card-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 22px;
+  gap: 6px;
+  margin-bottom: 20px;
 }
 
 .card-tags span {
   background: rgba(255, 255, 255, 0.07);
   color: #cbd5e1;
-  padding: 4px 10px;
+  padding: 3px 8px;
   border-radius: 8px;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
 }
 
 .btn-launch {
   display: block;
   width: 100%;
-  padding: 12px;
+  padding: 11px;
   border-radius: 12px;
   text-align: center;
   text-decoration: none;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: white;
   transition: opacity 0.2s ease, transform 0.15s ease;
 }
@@ -222,6 +348,7 @@ body {
 .btn-blue { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
 .btn-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
 .btn-orange { background: linear-gradient(135deg, #f97316, #ea580c); }
+.btn-gold { background: linear-gradient(135deg, #f59e0b, #d97706); }
 
 /* 📱 教師派發區 */
 .dispatch-section {
