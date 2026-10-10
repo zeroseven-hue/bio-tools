@@ -87,11 +87,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- QR Code Dispatcher Logic ---
+  // --- 📱 Smart Dispatcher (Auto Appends ?dispatch=true to hide return buttons) ---
   function getTargetUrl() {
     const relativePath = selectTool.value;
     const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
-    return baseUrl + relativePath;
+    const separator = relativePath.includes('?') ? '&' : '?';
+    return baseUrl + relativePath + separator + 'dispatch=true';
   }
 
   btnGenerateQR.addEventListener('click', () => {

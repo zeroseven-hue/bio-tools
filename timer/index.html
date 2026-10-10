@@ -5,6 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>⏱️ 課堂專注計時與倒數碼錶 - bio-tools (大廳三)</title>
   <link rel="stylesheet" href="style.css?v=1.0">
+
+  <!-- 🔒 學生派發模式自動隱藏返回大廳按鈕 -->
+  <script>
+    if (window.location.search.includes('dispatch=true')) {
+      document.documentElement.classList.add('dispatch-mode');
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('a[href*="index.html"], .btn-back').forEach(function(el) {
+          el.style.display = 'none';
+        });
+      });
+    }
+  </script>
+  <style>
+    html.dispatch-mode a[href*="index.html"],
+    html.dispatch-mode .btn-back {
+      display: none !important;
+    }
+  </style>
+
 </head>
 <body>
   <div class="tool-container">

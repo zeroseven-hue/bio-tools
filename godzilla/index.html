@@ -16,6 +16,25 @@ aside .stats{display:flex;flex-direction:column;gap:12px}aside .stats .stat{widt
 body.dark{color:#edf4fa;background:radial-gradient(circle at 80% 0%,#244553,transparent 42%),#101c29}body.dark.win{background:#102c29}body.dark.lose{background:#351d2a}body.dark .eyebrow{color:#9bd0dc}body.dark h1{color:#f3f7fb}body.dark #clock{background:#263748;color:#f7fbff;box-shadow:0 8px 20px #07131d66}body.dark .card{background:#1c2b3a;border-color:#42576b;box-shadow:0 12px 30px #07131d66}body.dark .arena{background:linear-gradient(#253849 0%,#253849 75%,#28483f 75%,#203b35 100%)}body.dark .arena:fullscreen{background:linear-gradient(#253849 0%,#253849 76%,#28483f 76%,#203b35 100%)}body.dark .stat{background:#2b4052}body.dark .label,body.dark .meter-note{color:#d3e2ec}body.dark .big,body.dark .hp-value{color:#fff}body.dark .bar{background:#456074}body.dark .settings-toggle{background:#263b4b}body.dark .settings-toggle summary,body.dark .field{color:#f2f8fc}body.dark .field small,body.dark .hint{color:#c2d5e0}body.dark input[type=number]{background:#182a39;color:#fff;border-color:#7790a2}body.dark input[type=range]{accent-color:#6bcad4}body.dark .theme-toggle{background:#415668;color:#fff;border-color:#70899d}body.dark .theme-toggle:hover{background:#506c7c}body.dark .banner{background:#255348;color:#e8fff3}body.dark .arena[data-stage="2"] .banner{background:#665027;color:#fff2cd}body.dark .arena[data-stage="3"] .banner{background:#74472f;color:#fff1dd}body.dark .arena[data-stage="4"] .banner,body.dark .arena[data-stage="5"] .banner{background:#772f3a;color:#ffe5e4}body.dark .arena[data-stage="win"] .banner{background:#285a45;color:#e5ffe9}body.dark .arena:fullscreen .stage-hud{background:#243d4cf2;color:#fff}body.dark .ground{fill:#668d78;opacity:.7}body.dark .test-sound{background:#315d6c;color:#f0fbff}body.dark button:not(.primary):not(.pause):not(.theme-toggle):not(.test-sound):not(.exit-fullscreen){background:#40586b;color:#f5faff}body.dark .pause{background:#756038;color:#fff3d5}body.dark .exit-fullscreen{background:#435a6d;color:#fff}body.dark .meter .threshold{background:#ff828b}body.dark .meter .fill{background:linear-gradient(90deg,#46c79f,#f0bf60,#ff7774)}
 @media(max-width:720px){.top-tools{width:100%;justify-content:space-between}.theme-toggle{font-size:16px;padding:9px 12px}body.dark .arena:fullscreen .stage-hud{font-size:22px}}
 </style>
+
+  <!-- 🔒 學生派發模式自動隱藏返回大廳按鈕 -->
+  <script>
+    if (window.location.search.includes('dispatch=true')) {
+      document.documentElement.classList.add('dispatch-mode');
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('a[href*="index.html"], .btn-back').forEach(function(el) {
+          el.style.display = 'none';
+        });
+      });
+    }
+  </script>
+  <style>
+    html.dispatch-mode a[href*="index.html"],
+    html.dispatch-mode .btn-back {
+      display: none !important;
+    }
+  </style>
+
 </head>
 <body>
 <main>
