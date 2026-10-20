@@ -1,0 +1,2102 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>✨ Astra Gacharium ‧ 全能五合一豪華抽獎工作室 - bio-tools (大廳三)</title>
+  
+  <!-- 🔒 學生派發模式自動隱藏返回大廳按鈕 -->
+  <script>
+    if (window.location.search.includes('dispatch=true')) {
+      document.documentElement.classList.add('dispatch-mode');
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('a[href*="index.html"], .btn-back').forEach(function(el) {
+          el.style.display = 'none';
+        });
+      });
+    }
+  </script>
+  <style>
+    html.dispatch-mode a[href*="index.html"],
+    html.dispatch-mode .btn-back {
+      display: none !important;
+    }
+  </style>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- SheetJS for Excel and CSV Parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            wood: {
+              light: '#f7eedd',
+              base: '#e3be89',
+              dark: '#935427',
+              deep: '#5a2d0c'
+            }
+          },
+          animation: {
+            'spin-slow': 'spin 12s linear infinite',
+            'barrel-shake': 'barrelShake 0.45s ease-in-out infinite',
+            'vertical-smash': 'verticalSmash 0.65s cubic-bezier(0.25, 1, 0.5, 1) forwards',
+            'shin-peek': 'shinPeek 2.5s ease-in-out infinite',
+            'bubble-pop': 'bubblePop 0.3s ease-out forwards'
+          },
+          keyframes: {
+            barrelShake: {
+              '0%, 100%': { transform: 'rotate(0deg) translateY(0)' },
+              '15%': { transform: 'rotate(-7deg) translateY(-5px)' },
+              '30%': { transform: 'rotate(7deg) translateY(3px)' },
+              '45%': { transform: 'rotate(-9deg) translateY(-7px)' },
+              '60%': { transform: 'rotate(9deg) translateY(3px)' },
+              '75%': { transform: 'rotate(-5deg) translateY(-3px)' },
+              '90%': { transform: 'rotate(5deg) translateY(2px)' }
+            },
+            /* 正統 T 字木槌：手柄由右下延伸，槌頭在前，由右上高處蓄力後向下重劈砸蛋 */
+            hammerSmashDirect: {
+              /* 0%: 斜上方高舉就位 */
+              '0%': {
+                transform: 'translate(40px, -90px) rotate(35deg) scale(0.95)',
+                opacity: '0'
+              },
+              /* 20%: 往後高高仰起蓄力 */
+              '20%': {
+                transform: 'translate(60px, -115px) rotate(55deg) scale(1.05)',
+                opacity: '1'
+              },
+              /* 42%: 由上而下全力劈下！T字木槌頭正面砸中金蛋右上頂 */
+              '42%': {
+                transform: 'translate(-12px, -6px) rotate(-12deg) scale(1.1)',
+                opacity: '1'
+              },
+              /* 58%: 砸中受力自然彈起 */
+              '58%': {
+                transform: 'translate(10px, -22px) rotate(8deg) scale(1)',
+                opacity: '1'
+              },
+              /* 80%: 懸停收力 */
+              '80%': {
+                transform: 'translate(18px, -20px) rotate(14deg) scale(0.95)',
+                opacity: '0.85'
+              },
+              /* 100%: 收回淡出 */
+              '100%': {
+                transform: 'translate(45px, -45px) rotate(30deg) scale(0.75)',
+                opacity: '0'
+              }
+            },
+            shinWave: {
+              '0%, 100%': { transform: 'rotate(0deg)' },
+              '25%': { transform: 'rotate(-10deg) translateY(-3px)' },
+              '75%': { transform: 'rotate(12deg) translateY(-2px)' }
+            },
+            armWave: {
+              '0%, 100%': { transform: 'rotate(0deg)' },
+              '50%': { transform: 'rotate(-35deg)' }
+            },
+            shinPeek: {
+              '0%, 100%': { transform: 'translateY(8px) rotate(0deg)' },
+              '50%': { transform: 'translateY(-10px) rotate(4deg)' }
+            },
+            buttDance: {
+              '0%, 100%': { transform: 'rotate(-16deg) translateX(-8px) scaleY(0.95)' },
+              '50%': { transform: 'rotate(16deg) translateX(8px) scaleY(1.05)' }
+            },
+            bubblePop: {
+              '0%': { transform: 'scale(0.4)', opacity: '0' },
+              '70%': { transform: 'scale(1.1)', opacity: '1' },
+              '100%': { transform: 'scale(1)', opacity: '1' }
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Noto+Sans+TC:wght@500;700;900&family=Yuji+Boku&display=swap');
+    
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      user-select: none;
+    }
+    
+    .font-cinzel { font-family: 'Cinzel', serif; }
+    .font-brush { font-family: 'Yuji Boku', 'Noto Sans TC', serif; }
+
+    .bg-nebula {
+      background: radial-gradient(circle at 50% 15%, #241442 0%, #0e0922 55%, #05030d 100%);
+    }
+
+    /* 3D Transform Utilities */
+    .perspective-1000 { perspective: 1000px; }
+    .transform-style-3d { transform-style: preserve-3d; }
+    .backface-hidden {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    /* Wooden Stick Realistic Grain */
+    .wood-texture {
+      background: 
+        linear-gradient(90deg, rgba(90,45,12,0.25) 0%, rgba(255,255,255,0.18) 50%, rgba(90,45,12,0.3) 100%),
+        repeating-linear-gradient(0deg, #dfba85, #dfba85 4px, #d4ab71 5px, #dfba85 8px);
+      box-shadow: -2px 3px 5px rgba(0,0,0,0.4), inset -1px 0 2px rgba(90,45,12,0.6), inset 1px 0 2px rgba(255,255,255,0.7);
+    }
+
+    /* Gold Foil Edge */
+    .gold-emboss {
+      border: 1.5px solid #ffd700;
+      box-shadow: 0 0 4px rgba(255, 215, 0, 0.6), inset 0 0 3px rgba(255, 215, 0, 0.4);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.7); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: rgba(168, 85, 247, 0.5); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(245, 158, 11, 0.8); }
+  </style>
+</head>
+
+<body class="bg-nebula text-slate-100 min-h-screen flex flex-col justify-between overflow-x-hidden">
+  
+  <header class="relative z-30 w-full px-4 sm:px-8 py-3.5 border-b border-purple-500/20 backdrop-blur-md bg-slate-950/70 flex items-center justify-between">
+    <div class="flex items-center gap-2 sm:gap-3">
+      <a href="../index.html" class="btn-back px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-purple-200 hover:text-white border border-purple-500/30 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all shadow-sm">
+        <span>⬅️</span> 大廳三
+      </a>
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-purple-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
+        <span class="text-xl">✨</span>
+      </div>
+      <div>
+        <h1 class="text-base sm:text-lg font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-purple-300 to-pink-300 font-cinzel">
+          ASTRA GACHARIUM
+        </h1>
+        <p class="text-[10px] text-purple-300/70 tracking-widest uppercase">全能五合一豪華抽獎工作室</p>
+      </div>
+    </div>
+
+    <!-- Mode Selector Navigation -->
+    <div class="flex items-center gap-2 sm:gap-3 flex-wrap justify-center">
+      <div class="bg-slate-900/90 p-1 rounded-xl border border-purple-500/30 flex items-center flex-wrap gap-1 shadow-inner">
+        <button id="btnModeWheel" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all bg-gradient-to-r from-amber-500 to-purple-600 text-white shadow-md flex items-center gap-1">
+          <span>🎡</span> 轉盤
+        </button>
+        <button id="btnModeBox" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white flex items-center gap-1">
+          <span>🎁</span> 盲盒
+        </button>
+        <button id="btnModeSticks" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white flex items-center gap-1">
+          <span>🎋</span> 籤筒
+        </button>
+        <button id="btnModeEgg" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white flex items-center gap-1">
+          <span>🥚</span> 砸金蛋
+        </button>
+        <button id="btnModeCards" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white flex items-center gap-1">
+          <span>🎴</span> 翻牌
+        </button>
+      </div>
+
+      <!-- Sound Toggle -->
+      <button id="btnToggleSound" class="p-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-amber-300 border border-purple-500/30 transition-all shadow-sm">
+        <span id="soundIcon" class="text-base">🔔</span>
+      </button>
+
+      <!-- Admin Dashboard -->
+      <button id="btnOpenAdmin" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-lg shadow-purple-600/30 transition-all active:scale-95">
+        <span>⚙️</span> 後台管理
+      </button>
+    </div>
+  </header>
+
+  <main class="relative z-10 flex-1 flex flex-col items-center justify-center px-4 py-3 max-w-7xl mx-auto w-full">
+    
+    <div class="text-center mb-3 z-20">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-900/40 border border-purple-500/30 text-[11px] text-amber-300 mb-1">
+        <span id="poolStatusCount">卡池運作中 (載入中...)</span>
+      </div>
+      <h2 id="stageHeadline" class="text-2xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-purple-100 to-white drop-shadow">
+        旋轉命運之輪・探尋傳奇珍寶
+      </h2>
+    </div>
+
+    <!-- Arena Container (5 Integrated Modules) -->
+    <div class="relative w-full flex flex-col items-center justify-center my-auto min-h-[460px]">
+
+      <!-- MODE 1: FORTUNE WHEEL -->
+      <div id="wheelContainer" class="flex flex-col items-center justify-center relative w-full py-2">
+        <div class="relative w-[340px] sm:w-[460px] h-[340px] sm:h-[460px] flex items-center justify-center">
+          <div class="absolute -top-3 z-30 flex flex-col items-center pointer-events-none drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
+            <div class="w-8 h-10 bg-gradient-to-b from-amber-300 via-amber-500 to-amber-600 [clip-path:polygon(50%_100%,0%_0%,100%_0%)] border-t-2 border-white"></div>
+            <div class="w-3.5 h-3.5 -mt-8 rounded-full bg-white shadow-inner"></div>
+          </div>
+          <canvas id="wheelCanvas" class="w-full h-full rounded-full cursor-pointer shadow-[0_0_50px_rgba(168,85,247,0.35)]"></canvas>
+          <button id="btnWheelCenter" class="absolute z-20 w-20 sm:w-24 h-20 sm:h-24 rounded-full bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-600 border-4 border-slate-950 shadow-[0_0_25px_rgba(245,158,11,0.8)] flex flex-col items-center justify-center active:scale-95 transition-all">
+            <span class="text-[11px] font-black tracking-widest text-slate-900 font-cinzel">SPIN</span>
+            <span class="text-sm sm:text-base font-black text-slate-950">開轉</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- MODE 2: MYSTERY GACHA BOX -->
+      <div id="boxContainer" class="hidden flex flex-col items-center justify-center relative w-full py-4">
+        <div class="relative w-[320px] sm:w-[400px] h-[380px] flex items-center justify-center">
+          <div id="interactiveBox" class="relative z-10 w-64 h-64 sm:w-72 sm:h-72 cursor-pointer group transition-transform duration-300">
+            <div id="boxVisual" class="w-full h-full rounded-3xl bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-950 border-2 border-amber-400/60 shadow-[0_0_40px_rgba(245,158,11,0.35)] p-5 flex flex-col items-center justify-between group-hover:scale-105 transition-transform duration-300">
+              <div class="w-full flex justify-center pt-2">
+                <div class="w-32 h-1.5 rounded-full bg-gradient-to-r from-transparent via-amber-400 to-transparent"></div>
+              </div>
+              <div class="relative flex items-center justify-center my-auto">
+                <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-purple-600 via-pink-500 to-amber-400 p-[3px] animate-spin-slow">
+                  <div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center">
+                    <span class="text-4xl filter drop-shadow">💎</span>
+                  </div>
+                </div>
+              </div>
+              <div class="w-full text-center pb-2">
+                <div class="text-xs font-black tracking-widest text-amber-300 font-cinzel">ASTRA CHEST</div>
+                <div class="text-[10px] text-purple-300/80">點擊或單抽開啟盲盒</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODE 3: AUTHENTIC WOODEN OMIKUJI BARREL -->
+      <div id="sticksContainer" class="hidden flex flex-col items-center justify-center relative w-full py-2">
+        <div class="relative w-[360px] sm:w-[460px] h-[450px] flex items-center justify-center">
+          
+          <div id="barrelAssembly" class="relative z-10 flex flex-col items-center cursor-pointer select-none">
+            
+            <!-- Authentic Thick Wooden Sticks Fan Array (Rendered via JS with Wood Grain) -->
+            <div id="sticksFanContainer" class="relative w-80 h-44 flex justify-center items-end -mb-10 z-0">
+              <!-- Dynamically Populated Wooden Sticks -->
+            </div>
+
+            <!-- Traditional Japanese Shrine Barrel -->
+            <div class="relative w-60 sm:w-68 h-64 rounded-b-3xl border-4 border-amber-950 shadow-2xl flex flex-col items-center overflow-hidden z-10 bg-[#3a1d0d]">
+              <!-- Rim Top -->
+              <div class="w-full h-10 bg-gradient-to-r from-red-800 via-rose-700 to-red-800 border-b-4 border-amber-950 flex items-center justify-between px-3 shadow-md">
+                <span class="text-xs text-amber-300 font-brush">✦ 招財 ✦</span>
+                <span class="text-xs font-black tracking-widest text-amber-200">開運御神籤筒</span>
+                <span class="text-xs text-amber-300 font-brush">✦ 進寶 ✦</span>
+              </div>
+
+              <!-- Barrel Body Artwork -->
+              <div class="flex-1 w-full bg-gradient-to-b from-[#f3e7cf] to-[#e4cfab] p-3 flex flex-col items-center justify-center relative">
+                <!-- Lanterns Line -->
+                <div class="absolute top-1 left-0 right-0 flex justify-between px-4 text-xs opacity-70">
+                  <span>🏮🏮</span>
+                  <span>🏮🏮</span>
+                </div>
+                <!-- Lucky Cat Center Artwork -->
+                <div class="w-32 h-32 rounded-2xl border-2 border-amber-900/30 bg-amber-100/60 flex flex-col items-center justify-center p-2 shadow-inner">
+                  <div class="w-9 h-9 rounded-full bg-amber-400 border-2 border-amber-800 flex items-center justify-center font-black text-amber-950 text-sm shadow mb-1">
+                    財
+                  </div>
+                  <div class="text-5xl filter drop-shadow">🐱</div>
+                  <div class="px-2 py-0.5 rounded-full bg-red-700 text-amber-200 text-[10px] font-black border border-amber-300 mt-1">
+                    大吉・招財
+                  </div>
+                </div>
+              </div>
+
+              <!-- Barrel Bottom Wave Crest -->
+              <div class="w-full h-6 bg-gradient-to-r from-red-900 via-rose-800 to-red-900 border-t-2 border-amber-950 flex items-center justify-center text-[10px] text-amber-200 tracking-widest font-serif font-black">
+                誠 心 祈 願・得 此 靈 寶
+              </div>
+            </div>
+
+            <div class="mt-3 px-4 py-1 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-bold tracking-wider animate-pulse flex items-center gap-1.5">
+              <span>🎋</span> 點選籤支或點擊籤筒搖籤
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODE 4: GOLDEN EGGS SMASH (Vertical Hammer + Egg Quantity Selector) -->
+      <div id="eggContainer" class="hidden flex flex-col items-center justify-center relative w-full py-2">
+        <div class="relative w-full max-w-4xl flex flex-col items-center">
+          
+          <!-- Egg Count Switcher Toolbar -->
+          <div class="flex items-center gap-2 mb-4 bg-slate-900/80 px-3 py-1.5 rounded-2xl border border-amber-500/30 shadow-md">
+            <span class="text-xs text-amber-300 font-bold">金蛋數量設定：</span>
+            <div class="flex gap-1.5">
+              <button class="btn-egg-count px-3 py-1 rounded-lg text-xs font-bold bg-amber-500 text-slate-950 shadow" data-count="3">3 顆</button>
+              <button class="btn-egg-count px-3 py-1 rounded-lg text-xs font-semibold text-slate-300 hover:text-white" data-count="6">6 顆</button>
+              <button class="btn-egg-count px-3 py-1 rounded-lg text-xs font-semibold text-slate-300 hover:text-white" data-count="8">8 顆</button>
+              <button class="btn-egg-count px-3 py-1 rounded-lg text-xs font-semibold text-slate-300 hover:text-white" data-count="12">12 顆</button>
+            </div>
+            <button id="btnResetAllEggs" class="ml-2 px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 transition-all">
+              🔄 復原金蛋
+            </button>
+          </div>
+
+          <div class="mb-3 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-200 text-xs font-bold tracking-wider animate-pulse flex items-center gap-2">
+            <span>🔨</span> 點擊任一顆金蛋，小木槌將精準敲破金蛋、掉出蛋殼揭曉好禮！
+          </div>
+
+          <!-- 完美復刻截圖的經典原木小木槌（長柄直木棒 + 圓柱橫頭，完全同款比例畫風） -->
+          <div id="globalHammer" class="hidden fixed z-50 pointer-events-none transition-none filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.8)]" style="transform-origin: 85% 85%;">
+            <svg class="w-32 h-32 sm:w-36 sm:h-36" viewBox="0 0 160 160">
+              <defs>
+                <!-- 截圖同款紅棕原木手柄漸層 -->
+                <linearGradient id="refHandleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#b45309" />
+                  <stop offset="50%" stop-color="#853207" />
+                  <stop offset="100%" stop-color="#541c03" />
+                </linearGradient>
+
+                <!-- 截圖同款圓柱槌身立體原木漸層 -->
+                <linearGradient id="refHeadGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#9a3412" />
+                  <stop offset="30%" stop-color="#c2410c" />
+                  <stop offset="70%" stop-color="#7c2d12" />
+                  <stop offset="100%" stop-color="#431407" />
+                </linearGradient>
+
+                <!-- 截圖同款打擊圓面淺木色橫切面 -->
+                <radialGradient id="refFaceGrad" cx="45%" cy="45%" r="65%">
+                  <stop offset="0%" stop-color="#fed7aa" />
+                  <stop offset="55%" stop-color="#fba04e" />
+                  <stop offset="90%" stop-color="#c2410c" />
+                  <stop offset="100%" stop-color="#7c2d12" />
+                </radialGradient>
+              </defs>
+
+              <!-- 槌子整體以握手處向左上敲擊角度排列 -->
+              <g transform="translate(10, 10)">
+                <!-- 1. 長直細手柄（截圖同款細長木棒，從右下直插圓柱中心） -->
+                <rect x="58" y="52" width="76" height="12" rx="6" transform="rotate(45 58 52)" fill="url(#refHandleGrad)" stroke="#3f1604" stroke-width="2" />
+                
+                <!-- 2. 正統 T 字垂直圓柱木槌身（方向與手柄呈 90 度垂直交叉） -->
+                <g transform="rotate(-45 58 52)">
+                  <!-- 圓柱橫身 -->
+                  <rect x="25" y="38" width="56" height="28" rx="3" fill="url(#refHeadGrad)" stroke="#3b1304" stroke-width="2.2" />
+                  
+                  <!-- 圓柱頂端微凸高光條，增加純原木溫潤手感 -->
+                  <line x1="32" y1="44" x2="72" y2="44" stroke="#fdba74" stroke-width="2" stroke-linecap="round" opacity="0.6" />
+                  <line x1="34" y1="60" x2="70" y2="60" stroke="#2a0c02" stroke-width="1.8" stroke-linecap="round" opacity="0.5" />
+
+                  <!-- 右端後蓋橢圓面 -->
+                  <ellipse cx="81" cy="52" rx="6" ry="14" fill="#6c2307" stroke="#3b1304" stroke-width="2" />
+
+                  <!-- 左端圓形打擊面（截圖同款淡木色圓面，正對金蛋打擊點！） -->
+                  <ellipse cx="25" cy="52" rx="7" ry="14" fill="url(#refFaceGrad)" stroke="#3b1304" stroke-width="2.2" />
+                </g>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Dynamic Egg Grid (Populated via JS) -->
+          <div id="eggGridList" class="relative z-10 w-full flex flex-wrap items-center justify-center gap-6 sm:gap-9 py-3 max-h-[460px] overflow-visible px-2">
+            <!-- Egg elements populated dynamically -->
+          </div>
+
+        </div>
+      </div>
+
+      <!-- MODE 5: 9-CARDS FLIP WITH INTERACTIVE SHIN-CHAN MASCOT -->
+      <div id="cardsGridContainer" class="hidden flex flex-col items-center justify-center relative w-full py-2">
+        <div class="relative w-full max-w-2xl flex flex-col items-center">
+          
+          <!-- Instructions -->
+          <div class="mb-3 px-4 py-1.5 rounded-full bg-purple-500/20 border border-purple-400/40 text-purple-200 text-xs font-bold tracking-wider flex items-center gap-2">
+            <span>✨</span> 依直覺翻開一張命運秘牌，小新正在為你指路扭屁股！
+          </div>
+
+          <div class="relative w-full flex justify-center pt-8">
+            
+            <!-- Interactive Shin-Chan Mascot (Roams and switches between Front-Facing, Proud, and Butt-Dance) -->
+            <div id="shinChanMascot" class="absolute -top-14 z-30 flex flex-col items-center pointer-events-none transition-all duration-500 ease-out">
+              <!-- Speech Bubble -->
+              <div id="shinBubble" class="bg-amber-100 text-slate-950 font-black text-xs px-3 py-1.5 rounded-2xl shadow-xl border-2 border-amber-400 relative mb-1 flex items-center gap-1">
+                <span>💬</span> <span id="shinSpeechText">大姐姐～選我選我！這張保證大獎啦！</span>
+                <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-amber-100"></div>
+              </div>
+              
+              <!-- Shin-chan Multi-Pose Figure Container -->
+              <div id="shinFigureWrapper" class="w-20 h-20 filter drop-shadow-[0_6px_10px_rgba(0,0,0,0.6)] cursor-pointer">
+                
+                <!-- 姿態一：小新正面熱情揮手「選我選我！」（經典紅衣黃褲、濃眉大眼、單手熱烈揮舞） -->
+                <svg id="shinFrontWaveSvg" viewBox="0 0 100 100" class="w-full h-full [animation:shinWave_1.2s_ease-in-out_infinite]">
+                  <!-- 小新招牌膨膨臉頰與耳朵 -->
+                  <ellipse cx="50" cy="42" rx="28" ry="24" fill="#fde047" opacity="0" />
+                  <path d="M 28,45 C 20,38 24,18 46,16 C 68,14 78,28 76,42 C 74,54 58,58 48,58 C 38,58 32,54 28,45 Z" fill="#fed7aa" stroke="#7c2d12" stroke-width="2.5" />
+                  
+                  <!-- 小新經典濃黑粗眉 -->
+                  <path d="M 33 26 Q 42 20 48 26" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round" />
+                  <path d="M 54 26 Q 62 20 70 25" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round" />
+
+                  <!-- 水汪汪大眼睛與亮點 -->
+                  <ellipse cx="42" cy="33" rx="4.5" ry="6" fill="#0f172a" />
+                  <circle cx="43.5" cy="31.5" r="2" fill="#ffffff" />
+                  <ellipse cx="63" cy="33" rx="4.5" ry="6" fill="#0f172a" />
+                  <circle cx="64.5" cy="31.5" r="2" fill="#ffffff" />
+
+                  <!-- 可愛笑嘴與紅暈 -->
+                  <path d="M 48 42 Q 53 48 58 42" fill="#ef4444" stroke="#991b1b" stroke-width="1.8" />
+                  <circle cx="33" cy="40" r="3.5" fill="#f87171" opacity="0.6" />
+                  <circle cx="70" cy="40" r="3.5" fill="#f87171" opacity="0.6" />
+
+                  <!-- 經典紅色 T 恤 -->
+                  <path d="M 34,56 L 68,56 L 73,74 L 29,74 Z" fill="#ef4444" stroke="#991b1b" stroke-width="2.5" />
+
+                  <!-- 招牌黃色短褲 -->
+                  <path d="M 32,73 L 70,73 L 68,85 L 53,85 L 51,78 L 49,85 L 34,85 Z" fill="#facc15" stroke="#ca8a04" stroke-width="2.2" />
+
+                  <!-- 雙腳與小白襪 -->
+                  <rect x="36" y="85" width="8" height="6" rx="2" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" />
+                  <rect x="58" y="85" width="8" height="6" rx="2" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" />
+
+                  <!-- 右手熱情高舉揮手「選我選我！」 -->
+                  <g style="transform-origin: 70px 58px;" class="[animation:armWave_0.6s_ease-in-out_infinite_alternate]">
+                    <path d="M 68,58 L 84,40 Q 89,36 86,45 L 72,66 Z" fill="#fed7aa" stroke="#7c2d12" stroke-width="2.2" />
+                    <circle cx="86" cy="40" r="4.5" fill="#fed7aa" stroke="#7c2d12" stroke-width="2" />
+                  </g>
+                  
+                  <!-- 左手叉腰自然下垂 -->
+                  <path d="M 34,58 L 22,66 Q 20,72 26,72 L 32,68 Z" fill="#fed7aa" stroke="#7c2d12" stroke-width="2.2" />
+                </svg>
+
+                <!-- 姿態二：經典露屁屁扭扭舞（可動態切換） -->
+                <svg id="shinButtDanceSvg" viewBox="0 0 100 100" class="hidden w-full h-full [animation:buttDance_0.32s_ease-in-out_infinite_alternate]" style="transform-origin: 50% 70%;">
+                  <!-- Red Shirt pulled up -->
+                  <path d="M 22,35 Q 50,22 78,35 L 75,52 Q 50,42 25,52 Z" fill="#ef4444" stroke="#991b1b" stroke-width="2.5" />
+                  <!-- Yellow Underpants Pulled Down to Knees -->
+                  <path d="M 24,78 Q 50,86 76,78 L 74,90 Q 50,96 26,90 Z" fill="#facc15" stroke="#ca8a04" stroke-width="2" />
+                  
+                  <!-- Plump Cute Wiggling Butt (Two round cheeks) -->
+                  <circle cx="38" cy="62" r="17" fill="#fed7aa" stroke="#c2410c" stroke-width="2.5" />
+                  <circle cx="62" cy="62" r="17" fill="#fed7aa" stroke="#c2410c" stroke-width="2.5" />
+                  <path d="M 50,48 Q 50,68 50,75" fill="none" stroke="#ea580c" stroke-width="2" />
+                  
+                  <!-- Little Stubby Legs & Socks -->
+                  <rect x="27" y="86" width="12" height="10" rx="3" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" />
+                  <rect x="61" y="86" width="12" height="10" rx="3" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" />
+
+                  <!-- Shin-Chan Looking Back from between legs -->
+                  <path d="M 36,26 C 30,16 68,16 64,26 C 62,32 38,32 36,26 Z" fill="#fed7aa" stroke="#7c2d12" stroke-width="2" />
+                  <path d="M 40 22 Q 46 18 50 22" fill="none" stroke="#0f172a" stroke-width="3" stroke-linecap="round" />
+                  <path d="M 52 22 Q 56 18 62 22" fill="none" stroke="#0f172a" stroke-width="3" stroke-linecap="round" />
+                  <path d="M 12 55 L 18 58 L 12 61 Z" fill="#fde047" />
+                  <path d="M 88 55 L 82 58 L 88 61 Z" fill="#fde047" />
+                </svg>
+
+              </div>
+            </div>
+
+            <!-- 3x3 Card Grid -->
+            <div id="gridFlipCards" class="grid grid-cols-3 gap-3 sm:gap-4 p-3 sm:p-5 rounded-3xl bg-slate-900/60 border border-amber-500/30 backdrop-blur-md shadow-2xl">
+              <!-- Populated via JS -->
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Student Pool Display Section (Controlled via Admin Settings) -->
+    <div id="studentPoolSection" class="hidden w-full max-w-4xl mx-auto my-3 z-20">
+      <div class="bg-slate-900/80 border border-purple-500/30 rounded-2xl p-3 sm:p-4 backdrop-blur-md shadow-lg">
+        <div class="flex items-center justify-between pb-2 mb-2 border-b border-purple-500/20">
+          <div class="flex items-center gap-2">
+            <span class="text-sm">🎁</span>
+            <span class="text-xs sm:text-sm font-bold text-amber-300">本場活動獎品池與剩餘狀況</span>
+          </div>
+          <span id="studentPoolSummary" class="text-[11px] text-purple-300/80 font-mono">載入中...</span>
+        </div>
+        <div id="studentPoolCards" class="grid grid-cols-2 sm:grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1">
+          <!-- Dynamically populated via JS -->
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center justify-center gap-4 mt-2 z-20">
+      <!-- Single Pull Button -->
+      <button id="btnPullOne" class="group relative px-7 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:shadow-[0_0_30px_rgba(245,158,11,0.6)] transform hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center gap-3">
+        <span class="text-lg" id="singlePullIcon">⭐</span>
+        <div class="text-left">
+          <div class="text-sm font-extrabold tracking-wide" id="singlePullLabel">祈願單抽</div>
+          <div class="text-[10px] text-slate-900/80 font-medium font-sans">Single Pull (x1)</div>
+        </div>
+      </button>
+
+      <!-- Ten Pulls Button -->
+      <button id="btnPullTen" class="group relative px-7 py-3 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 hover:brightness-110 text-white font-black shadow-[0_0_25px_rgba(168,85,247,0.5)] transform hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center gap-3">
+        <span class="text-lg">🌟</span>
+        <div class="text-left">
+          <div class="flex items-center gap-1.5">
+            <span class="text-sm font-extrabold tracking-wide">十連召喚</span>
+            <span class="text-[9px] bg-amber-400 text-slate-950 px-1.5 py-0.2 rounded font-black">保底SR+</span>
+          </div>
+          <div class="text-[10px] text-white/80 font-medium font-sans">10-Consecutive Pulls</div>
+        </div>
+      </button>
+
+      <!-- History Trigger -->
+      <button id="btnOpenHistory" class="px-4 py-3 rounded-2xl bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-purple-500/30 text-xs font-bold transition-all flex items-center gap-1.5">
+        <span>📜</span> 紀錄 (<span id="historyCountBadge">0</span>)
+      </button>
+    </div>
+
+  </main>
+
+  <div id="revealModal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-xl flex flex-col items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div id="revealGlow" class="absolute w-[700px] h-[700px] rounded-full blur-[160px] pointer-events-none opacity-40"></div>
+
+    <div class="relative z-10 w-full max-w-4xl flex flex-col items-center max-h-[90vh]">
+      <div class="text-center mb-4">
+        <p id="revealSubheader" class="text-xs uppercase tracking-widest text-amber-300/80 font-serif">CONGRATULATIONS</p>
+        <h3 id="revealHeader" class="text-2xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-white to-purple-200">
+          祈願召喚成功！
+        </h3>
+      </div>
+
+      <!-- Two-Stage Fortune Stick Reveal (3D Flip) -->
+      <div id="stickStageContainer" class="hidden flex-col items-center mb-4 perspective-1000">
+        <p class="text-xs text-amber-300 animate-pulse mb-3">✦ 點擊下方籤木，翻面解籤揭曉獎品 ✦</p>
+        <div id="flippableStickCard" class="relative w-48 h-80 cursor-pointer transform-style-3d transition-transform duration-700">
+          <!-- Stick Front -->
+          <div class="absolute inset-0 rounded-2xl wood-texture gold-emboss shadow-2xl flex flex-col items-center p-3 backface-hidden">
+            <div class="w-full flex-1 rounded-xl bg-gradient-to-b from-red-800 via-red-700 to-red-900 border-2 border-amber-400 p-2 flex flex-col items-center justify-between text-amber-200">
+              <div class="text-lg">🌸</div>
+              <div class="text-xs tracking-widest font-bold">天賜靈籤</div>
+              <div class="w-14 h-14 rounded-full border-2 border-amber-300 bg-red-950 flex items-center justify-center shadow-inner">
+                <span id="revealedStickNum" class="text-3xl font-black font-brush text-amber-300">7</span>
+              </div>
+              <div class="text-sm font-black tracking-widest font-brush py-2">吉 星 高 照</div>
+              <div class="text-[11px] bg-amber-400 text-red-950 font-bold px-2 py-0.5 rounded-full">
+                點擊翻面解籤 👆
+              </div>
+            </div>
+          </div>
+          <!-- Stick Back (Prize) -->
+          <div id="revealedPrizeBack" class="absolute inset-0 rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 border-4 border-amber-400 shadow-2xl flex flex-col items-center justify-center p-4 backface-hidden [transform:rotateY(180deg)] text-center">
+            <span id="revealedRarityBadge" class="px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-400 text-slate-950 mb-2">SSR</span>
+            <div id="revealedPrizeIcon" class="text-5xl filter drop-shadow my-2">🎁</div>
+            <h4 id="revealedPrizeName" class="text-base font-black text-white leading-tight mb-2">獎品名稱</h4>
+            <div class="w-12 h-[1px] bg-amber-400/50 my-1"></div>
+            <p id="revealedPrizeMsg" class="text-xs text-amber-200/90 italic mt-1">中獎寄語</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Multiple Cards Grid for Pulls -->
+      <div id="cardsGrid" class="w-full overflow-y-auto px-2 py-3 flex flex-wrap items-center justify-center gap-4 max-h-[58vh]">
+        <!-- Cards rendered via JS -->
+      </div>
+
+      <div class="mt-4 flex items-center gap-4">
+        <button id="btnCloseReveal" class="px-8 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-bold hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-amber-500/30">
+          收下獎勵 (確定)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="adminModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="relative w-full max-w-4xl bg-slate-900 border border-purple-500/40 rounded-3xl shadow-2xl p-5 sm:p-7 flex flex-col max-h-[92vh]">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-purple-500/20">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">⚙️</span>
+          <div>
+            <h3 class="text-lg font-black text-white">活動卡池與中獎設定中樞</h3>
+            <p class="text-xs text-slate-400">自訂獎品名單、庫存扣減、Excel/CSV 檔案匯入</p>
+          </div>
+        </div>
+        <button id="btnCloseAdmin" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-sm font-bold">✕</button>
+      </div>
+
+      <!-- Student Display Permission Control -->
+      <div class="py-2.5 px-3.5 my-2 rounded-xl bg-purple-950/40 border border-purple-500/30 flex items-center justify-between flex-wrap gap-2">
+        <div class="flex items-center gap-2">
+          <span class="text-base">🛡️</span>
+          <div>
+            <div class="text-xs font-bold text-white">學生端獎品池顯示權限</div>
+            <div class="text-[10px] text-purple-300/70">打勾時主畫面下方會公開獎品庫存清單；未打勾時主畫面完全隱藏</div>
+          </div>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer select-none">
+          <input type="checkbox" id="chkShowPoolToStudents" class="sr-only peer">
+          <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-amber-500 peer-checked:to-purple-600"></div>
+          <span id="labelPoolVisibility" class="ml-2 text-xs font-bold text-slate-300">關閉 (隱藏)</span>
+        </label>
+      </div>
+
+      <!-- Import Toolbar -->
+      <div class="py-3 border-b border-purple-500/20 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-xs font-semibold text-purple-300">範本載入：</span>
+          <button id="btnLoadGacha" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-amber-300 border border-amber-400/30">🎮 二次元卡池</button>
+          <button id="btnLoadParty" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-purple-300 border border-purple-400/30">🎉 企業尾牙春酒</button>
+          <button id="btnLoadGift" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-pink-300 border border-pink-400/30">🎁 聖誕交換禮物</button>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="hidden">
+          <button id="btnTriggerUpload" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 shadow">
+            <span>📥</span> 匯入 Excel/CSV
+          </button>
+          <button id="btnDownloadTemplate" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 text-xs font-medium">
+            <span>📄</span> 下載範本
+          </button>
+          <button id="btnExportPrizes" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-purple-500/30 text-xs font-medium">
+            <span>💾</span> 匯出卡池
+          </button>
+        </div>
+      </div>
+
+      <!-- Add Prize Form -->
+      <form id="addPrizeForm" class="grid grid-cols-2 sm:grid-cols-7 gap-2 py-2.5 bg-slate-950/60 p-3 rounded-2xl border border-purple-500/20 my-2">
+        <div class="col-span-2">
+          <label class="text-[10px] text-purple-300 block mb-1">獎品名稱</label>
+          <input type="text" id="inputPrizeName" required placeholder="如：iPhone 16 Pro" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-purple-400">
+        </div>
+        <div>
+          <label class="text-[10px] text-purple-300 block mb-1">圖標 Emoji</label>
+          <input type="text" id="inputPrizeIcon" required value="🎁" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-center text-white focus:outline-none focus:border-purple-400">
+        </div>
+        <div>
+          <label class="text-[10px] text-purple-300 block mb-1">稀有度</label>
+          <select id="inputPrizeRarity" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-purple-400">
+            <option value="SSR">SSR (傳奇)</option>
+            <option value="SR">SR (超絕)</option>
+            <option value="R">R (稀有)</option>
+            <option value="N">N (普通)</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[10px] text-purple-300 block mb-1">庫存 (0=無限)</label>
+          <input type="number" id="inputPrizeStock" required value="1" min="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-purple-400">
+        </div>
+        <div>
+          <label class="text-[10px] text-purple-300 block mb-1">機率權重</label>
+          <input type="number" id="inputPrizeWeight" required value="5" min="1" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-purple-400">
+        </div>
+        <div class="col-span-2 sm:col-span-1 flex items-end">
+          <button type="submit" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-bold py-1.5 px-3 rounded-lg text-xs transition-all shadow">
+            ＋ 新增
+          </button>
+        </div>
+      </form>
+
+      <!-- Table View -->
+      <div class="flex-1 overflow-y-auto my-2 border border-slate-800 rounded-xl bg-slate-950/40">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead class="bg-slate-800/80 sticky top-0 text-slate-300">
+            <tr>
+              <th class="p-2.5">品項與圖標</th>
+              <th class="p-2.5">階級</th>
+              <th class="p-2.5 text-center">剩餘庫存</th>
+              <th class="p-2.5 text-center">權重</th>
+              <th class="p-2.5 text-center">即時機率</th>
+              <th class="p-2.5 text-right">操作</th>
+            </tr>
+          </thead>
+          <tbody id="prizesTableBody" class="divide-y divide-slate-800/60 text-slate-200">
+            <!-- Table Rows dynamically injected -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pt-3 border-t border-purple-500/20 flex items-center justify-between">
+        <button id="btnResetPoolStock" class="px-3 py-1.5 rounded-lg bg-rose-950/60 hover:bg-rose-900 border border-rose-500/30 text-rose-300 text-xs font-semibold">
+          🔄 重設所有庫存
+        </button>
+        <button id="btnSaveCloseAdmin" class="px-6 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-xs shadow-lg hover:brightness-110">
+          完成並儲存
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="historyModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="relative w-full max-w-2xl bg-slate-900 border border-purple-500/40 rounded-3xl shadow-2xl p-6 flex flex-col max-h-[85vh]">
+      <div class="flex items-center justify-between pb-3 border-b border-purple-500/20">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">📜</span>
+          <h3 class="text-base font-black text-white">開獎得獎紀錄</h3>
+        </div>
+        <button id="btnCloseHistory" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs">✕</button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto my-3 border border-slate-800 rounded-xl bg-slate-950/50 p-2">
+        <ul id="historyList" class="space-y-2 text-xs"></ul>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+        <button id="btnClearHistory" class="px-3 py-1.5 rounded-lg bg-rose-950/60 hover:bg-rose-900 border border-rose-500/30 text-rose-300 text-xs">清空紀錄</button>
+        <button id="btnExportCSV" class="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs">匯出 CSV 名單</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* Default Pre-configured Pool Sets */
+    const DEFAULT_PRESETS = {
+      gacha: [
+        { id: 'p1', name: '熾焰魔導兵裝・天火之誓', icon: '⚔️', rarity: 'SSR', stock: 1, initialStock: 1, weight: 1, color: '#f59e0b', message: '傳奇兵裝出世，焚盡長夜！' },
+        { id: 'p2', name: '星穹引路者・浮空使徒', icon: '🌌', rarity: 'SSR', stock: 2, initialStock: 2, weight: 2, color: '#eab308', message: '星辰為引，諸天共鳴！' },
+        { id: 'p3', name: '精靈射手・烈風弓', icon: '🏹', rarity: 'SR', stock: 5, initialStock: 5, weight: 8, color: '#a855f7', message: '風馳電掣，百步穿楊！' },
+        { id: 'p4', name: '秘境防護盾牌', icon: '🛡️', rarity: 'SR', stock: 8, initialStock: 8, weight: 12, color: '#9333ea', message: '堅若磐石，不破壁壘！' },
+        { id: 'p5', name: '星辰結晶碎片 x50', icon: '🔮', rarity: 'R', stock: 20, initialStock: 20, weight: 25, color: '#3b82f6', message: '凝聚浩瀚能量的光之結晶。' },
+        { id: 'p6', name: '生命回復藥劑(特級)', icon: '🧪', rarity: 'R', stock: 30, initialStock: 30, weight: 35, color: '#2563eb', message: '瞬間恢復充沛的作戰體力。' },
+        { id: 'p7', name: '冒險者木劍', icon: '🗡️', rarity: 'N', stock: 0, initialStock: 0, weight: 60, color: '#64748b', message: '初出茅廬的新手裝備。' },
+        { id: 'p8', name: '魔力小麵包 x3', icon: '🍞', rarity: 'N', stock: 0, initialStock: 0, weight: 80, color: '#475569', message: '填飽肚子的香脆小點心。' }
+      ],
+      party: [
+        { id: 'p1', name: '特獎：iPhone 16 Pro', icon: '📱', rarity: 'SSR', stock: 1, initialStock: 1, weight: 1, color: '#f59e0b', message: '全場最幸運霸主！恭喜抱走最大獎！' },
+        { id: 'p2', name: '頭獎：PlayStation 5 Pro', icon: '🎮', rarity: 'SSR', stock: 2, initialStock: 2, weight: 2, color: '#eab308', message: '極致次世代主機開回家！' },
+        { id: 'p3', name: '二獎：Dyson 吹風機', icon: '💨', rarity: 'SR', stock: 3, initialStock: 3, weight: 5, color: '#a855f7', message: '極致奢華護髮體驗！' },
+        { id: 'p4', name: '三獎：百貨禮券 $3,000', icon: '💳', rarity: 'SR', stock: 5, initialStock: 5, weight: 10, color: '#9333ea', message: '想買什麼隨心所欲！' },
+        { id: 'p5', name: '四獎：無線降噪耳機', icon: '🎧', rarity: 'R', stock: 10, initialStock: 10, weight: 20, color: '#3b82f6', message: '沉浸在專屬音樂世界。' },
+        { id: 'p6', name: '五獎：電影票雙人組', icon: '🍿', rarity: 'R', stock: 15, initialStock: 15, weight: 30, color: '#2563eb', message: '週末浪漫看大片！' },
+        { id: 'p7', name: '普獎：超商禮券 $200', icon: '☕', rarity: 'N', stock: 40, initialStock: 40, weight: 50, color: '#64748b', message: '下午茶咖啡由主辦買單！' },
+        { id: 'p8', name: '參加獎：開運大紅包', icon: '🧧', rarity: 'N', stock: 0, initialStock: 0, weight: 70, color: '#475569', message: '平安順遂，新年行大運！' }
+      ],
+      gift: [
+        { id: 'p1', name: 'Apple Watch Series 10', icon: '⌚', rarity: 'SSR', stock: 1, initialStock: 1, weight: 1, color: '#f59e0b', message: '命定之神選中你！全場最強交換禮！' },
+        { id: 'p2', name: '富士拍立得相機', icon: '📷', rarity: 'SSR', stock: 2, initialStock: 2, weight: 3, color: '#eab308', message: '定格美好回憶每一瞬間！' },
+        { id: 'p3', name: '暖心香氛水氧機', icon: '🕯️', rarity: 'SR', stock: 4, initialStock: 4, weight: 8, color: '#a855f7', message: '舒緩身心的迷人療癒香氣。' },
+        { id: 'p4', name: '手沖精品咖啡壺', icon: '☕', rarity: 'SR', stock: 6, initialStock: 6, weight: 15, color: '#9333ea', message: '隨時隨地享受香醇濃郁。' },
+        { id: 'p5', name: '毛絨超暖抱枕毯', icon: '🧸', rarity: 'R', stock: 10, initialStock: 10, weight: 25, color: '#3b82f6', message: '冬天窩在沙發必備保暖神器！' },
+        { id: 'p6', name: '精選果乾零嘴禮盒', icon: '🍪', rarity: 'R', stock: 12, initialStock: 12, weight: 30, color: '#2563eb', message: '健康又好吃的美味零嘴。' },
+        { id: 'p7', name: '耶誕造型手工香皂', icon: '🧼', rarity: 'N', stock: 20, initialStock: 20, weight: 50, color: '#64748b', message: '散發淡淡節日氣息。' },
+        { id: 'p8', name: '精美手寫祝賀卡', icon: '💌', rarity: 'N', stock: 0, initialStock: 0, weight: 60, color: '#475569', message: '滿載誠摯友誼的心意小卡。' }
+      ]
+    };
+
+    /* App State */
+    let prizes = [];
+    let winnersHistory = [];
+    let isDrawing = false;
+    let currentMode = 'wheel'; // 'wheel' | 'box' | 'sticks' | 'egg' | 'cards'
+    let isMuted = false;
+    let wheelRotation = 0;
+    let currentEggCount = 3;
+    let shinMascotInterval = null;
+    let showPoolToStudents = false;
+
+    /* Web Audio Sound Synthesizer */
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
+    function playSound(type) {
+      if (isMuted) return;
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+
+        if (type === 'tick') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(800, now);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.04);
+        } else if (type === 'heavySmash') {
+          // Deep punchy bass impact
+          const osc1 = ctx.createOscillator();
+          const gain1 = ctx.createGain();
+          osc1.type = 'sawtooth';
+          osc1.frequency.setValueAtTime(140, now);
+          osc1.frequency.exponentialRampToValueAtTime(30, now + 0.22);
+          gain1.gain.setValueAtTime(0.5, now);
+          gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+          osc1.connect(gain1);
+          gain1.connect(ctx.destination);
+          osc1.start(now);
+          osc1.stop(now + 0.25);
+
+          // Crisp shell cracking explosion
+          const osc2 = ctx.createOscillator();
+          const gain2 = ctx.createGain();
+          osc2.type = 'triangle';
+          osc2.frequency.setValueAtTime(1100, now + 0.04);
+          osc2.frequency.exponentialRampToValueAtTime(180, now + 0.3);
+          gain2.gain.setValueAtTime(0.3, now + 0.04);
+          gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+          osc2.connect(gain2);
+          gain2.connect(ctx.destination);
+          osc2.start(now + 0.04);
+          osc2.stop(now + 0.32);
+        } else if (type === 'woodClack') {
+          // Thick timber sound
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(260 + Math.random() * 80, now);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        } else if (type === 'cardFlip') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(400, now);
+          osc.frequency.exponentialRampToValueAtTime(950, now + 0.12);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.14);
+        } else if (type === 'winSSR') {
+          const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98];
+          notes.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+            gain.gain.setValueAtTime(0.18, now + idx * 0.09);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.45);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.09);
+            osc.stop(now + idx * 0.09 + 0.48);
+          });
+        } else if (type === 'winCommon') {
+          const notes = [440, 554.37, 659.25];
+          notes.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+            gain.gain.setValueAtTime(0.12, now + idx * 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.25);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.1);
+            osc.stop(now + idx * 0.1 + 0.3);
+          });
+        }
+      } catch (e) {
+        console.warn('Audio synthesis issue:', e);
+      }
+    }
+
+    function initData() {
+      const stored = localStorage.getItem('astra_prizes_v3');
+      if (stored) {
+        try { prizes = JSON.parse(stored); }
+        catch (e) { prizes = JSON.parse(JSON.stringify(DEFAULT_PRESETS.gacha)); }
+      } else {
+        prizes = JSON.parse(JSON.stringify(DEFAULT_PRESETS.gacha));
+      }
+
+      const storedHistory = localStorage.getItem('astra_winners_history');
+      if (storedHistory) {
+        try { winnersHistory = JSON.parse(storedHistory); }
+        catch (e) { winnersHistory = []; }
+      }
+
+      const storedVisibility = localStorage.getItem('astra_show_pool_students');
+      showPoolToStudents = (storedVisibility === 'true');
+      const chk = document.getElementById('chkShowPoolToStudents');
+      const label = document.getElementById('labelPoolVisibility');
+      if (chk) chk.checked = showPoolToStudents;
+      if (label) label.textContent = showPoolToStudents ? '開啟 (公開)' : '關閉 (隱藏)';
+
+      updateUI();
+    }
+
+    function savePrizes() {
+      localStorage.setItem('astra_prizes_v3', JSON.stringify(prizes));
+      updateUI();
+    }
+
+    function saveHistory() {
+      localStorage.setItem('astra_winners_history', JSON.stringify(winnersHistory));
+      document.getElementById('historyCountBadge').textContent = winnersHistory.length;
+    }
+
+    /* CSPRNG Mathematical Weighted Pick */
+    function pickPrize(guaranteedRarity = null) {
+      const available = prizes.filter(p => p.stock > 0 || p.stock === 0);
+      let candidatePool = available.filter(p => p.stock !== 0 || p.initialStock === 0);
+
+      if (guaranteedRarity === 'SR+') {
+        const highTier = candidatePool.filter(p => p.rarity === 'SSR' || p.rarity === 'SR');
+        if (highTier.length > 0) candidatePool = highTier;
+      }
+      if (candidatePool.length === 0) return null;
+
+      const totalWeight = candidatePool.reduce((acc, p) => acc + (p.weight || 1), 0);
+      const randomBuffer = new Uint32Array(1);
+      window.crypto.getRandomValues(randomBuffer);
+      const randomValue = (randomBuffer[0] / (0xFFFFFFFF + 1)) * totalWeight;
+
+      let cumulative = 0;
+      for (const item of candidatePool) {
+        cumulative += (item.weight || 1);
+        if (randomValue <= cumulative) return item;
+      }
+      return candidatePool[candidatePool.length - 1];
+    }
+
+    function registerWin(prize) {
+      if (prize.stock > 0) {
+        prize.stock -= 1;
+        savePrizes();
+      }
+      const record = {
+        id: 'win_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+        prizeName: prize.name,
+        prizeIcon: prize.icon,
+        rarity: prize.rarity,
+        timestamp: new Date().toLocaleString()
+      };
+      winnersHistory.unshift(record);
+      saveHistory();
+    }
+
+    let canvas, ctx;
+    function setupCanvas() {
+      canvas = document.getElementById('wheelCanvas');
+      if (!canvas) return;
+      ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      const size = canvas.clientWidth || 360;
+      canvas.width = size * dpr;
+      canvas.height = size * dpr;
+      ctx.scale(dpr, dpr);
+    }
+
+    function drawWheel() {
+      const wheelContainer = document.getElementById('wheelContainer');
+      if (!canvas || !ctx || !wheelContainer || wheelContainer.classList.contains('hidden')) return;
+      const size = canvas.clientWidth;
+      if (!size || size <= 0) return;
+
+      const radius = size / 2;
+      const safeArcRadius = Math.max(10, radius - 10);
+      const numSlices = prizes.length;
+      if (numSlices === 0) return;
+
+      ctx.clearRect(0, 0, size, size);
+      ctx.save();
+      ctx.translate(radius, radius);
+      ctx.rotate(wheelRotation);
+
+      const sliceAngle = (2 * Math.PI) / numSlices;
+      let startAngle = 0;
+
+      // Outer Bezel
+      ctx.beginPath();
+      ctx.arc(0, 0, safeArcRadius, 0, 2 * Math.PI);
+      ctx.fillStyle = '#0f172a';
+      ctx.fill();
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = '#f59e0b';
+      ctx.stroke();
+
+      prizes.forEach((prize) => {
+        const endAngle = startAngle + sliceAngle;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, Math.max(5, safeArcRadius - 4), startAngle, endAngle);
+        ctx.closePath();
+        ctx.fillStyle = prize.color || '#334155';
+        ctx.fill();
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+        ctx.stroke();
+
+        ctx.save();
+        ctx.rotate(startAngle + sliceAngle / 2);
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = 'rgba(0,0,0,0.8)';
+        ctx.shadowBlur = 4;
+        ctx.font = 'bold 12px "Noto Sans TC", sans-serif';
+        const displayName = prize.name.length > 8 ? prize.name.substring(0, 8) + '…' : prize.name;
+        ctx.fillText(`${displayName} ${prize.icon}`, radius - 26, 0);
+        ctx.restore();
+
+        startAngle = endAngle;
+      });
+
+      // Rivets
+      for (let i = 0; i < 24; i++) {
+        const angle = (i * 2 * Math.PI) / 24;
+        const x = Math.cos(angle) * (safeArcRadius - 2);
+        const y = Math.sin(angle) * (safeArcRadius - 2);
+        ctx.beginPath();
+        ctx.arc(x, y, 2.5, 0, 2 * Math.PI);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function spinWheel(callback) {
+      if (isDrawing || prizes.length === 0) return;
+      isDrawing = true;
+
+      const chosenPrize = pickPrize();
+      if (!chosenPrize) { isDrawing = false; return; }
+      registerWin(chosenPrize);
+
+      const targetIndex = prizes.findIndex(p => p.id === chosenPrize.id);
+      const sliceAngle = (2 * Math.PI) / prizes.length;
+      const targetAngleCenter = targetIndex * sliceAngle + sliceAngle / 2;
+      const desiredEndAngle = (3 * Math.PI / 2) - targetAngleCenter;
+      const extraSpins = (6 + Math.floor(Math.random() * 4)) * (2 * Math.PI);
+      const totalRotationNeeded = extraSpins + (desiredEndAngle - (wheelRotation % (2 * Math.PI)));
+
+      const duration = 4800;
+      const startTime = performance.now();
+      const startRotation = wheelRotation;
+      let lastTickAngle = wheelRotation;
+
+      function animateSpin(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeOut = 1 - Math.pow(1 - progress, 3.8);
+        wheelRotation = startRotation + totalRotationNeeded * easeOut;
+
+        if (Math.abs(wheelRotation - lastTickAngle) >= sliceAngle) {
+          playSound('tick');
+          lastTickAngle = wheelRotation;
+        }
+        drawWheel();
+
+        if (progress < 1) {
+          requestAnimationFrame(animateSpin);
+        } else {
+          isDrawing = false;
+          if (callback) callback([chosenPrize]);
+        }
+      }
+      requestAnimationFrame(animateSpin);
+    }
+
+    function renderBarrelSticks() {
+      const container = document.getElementById('sticksFanContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const totalSticks = 9;
+      const startAngle = -38;
+      const endAngle = 38;
+      const step = (endAngle - startAngle) / (totalSticks - 1);
+
+      for (let i = 1; i <= totalSticks; i++) {
+        const angle = startAngle + (i - 1) * step;
+        const stick = document.createElement('div');
+        // Realistic Wooden Stick with Depth, Bevel and Texture
+        stick.className = 'absolute bottom-0 w-9 h-36 wood-texture rounded-t cursor-pointer transition-all hover:-translate-y-5 hover:scale-110 active:translate-y-0 group z-10 flex flex-col items-center justify-start';
+        stick.style.transformOrigin = 'bottom center';
+        stick.style.transform = `rotate(${angle}deg)`;
+        stick.setAttribute('data-stick-id', i);
+
+        stick.innerHTML = `
+          <!-- Pointed Shrine Amulet Tip -->
+          <div class="w-0 h-0 border-l-[18px] border-l-transparent border-r-[18px] border-r-transparent border-b-[18px] border-b-[#8b1515] -mt-2"></div>
+          
+          <!-- Crimson Lacquer Area with Cherry Blossom & Brushwork Number -->
+          <div class="w-7 h-20 rounded-b bg-gradient-to-b from-[#991b1b] via-[#b91c1c] to-[#7f1d1d] gold-emboss flex flex-col items-center justify-between py-1 text-amber-200">
+            <!-- Cherry Blossom Emblem -->
+            <svg class="w-3.5 h-3.5 text-pink-200 fill-current opacity-90 filter drop-shadow" viewBox="0 0 24 24">
+              <path d="M12 2 C13 5 15 6 18 5 C17 8 18 10 21 11 C18 13 18 15 19 18 C16 17 14 18 12 21 C11 18 9 17 6 18 C7 15 7 13 4 11 C7 10 8 8 7 5 C10 6 12 5 12 2 Z"/>
+            </svg>
+            <!-- Bold Brush Number matching Screenshot -->
+            <span class="text-base font-black font-brush text-amber-300 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] leading-none">${i}</span>
+          </div>
+
+          <!-- Vertical Authentic Japanese Kan-Ji on Wooden Grain -->
+          <div class="mt-2 text-[10px] font-black font-brush text-[#451e05] tracking-widest [writing-mode:vertical-rl]">
+            御神籤
+          </div>
+        `;
+
+        stick.addEventListener('click', (e) => {
+          e.stopPropagation();
+          shakeSticks(results => showResultsModal(results, i), 1, i);
+        });
+
+        container.appendChild(stick);
+      }
+    }
+
+    function shakeSticks(callback, count = 1, specificNum = null) {
+      if (isDrawing) return;
+      isDrawing = true;
+
+      const barrel = document.getElementById('barrelAssembly');
+      if (barrel) barrel.classList.add('animate-barrel-shake');
+
+      let clackCount = 0;
+      const soundTimer = setInterval(() => {
+        playSound('woodClack');
+        clackCount++;
+        if (clackCount >= 6) clearInterval(soundTimer);
+      }, 120);
+
+      const chosenNum = specificNum || Math.floor(Math.random() * 9) + 1;
+      const stickElem = document.querySelector(`[data-stick-id="${chosenNum}"]`);
+
+      setTimeout(() => {
+        if (stickElem) {
+          stickElem.style.transition = 'transform 0.5s ease-out';
+          stickElem.style.transform += ' translateY(-45px)';
+        }
+      }, 400);
+
+      setTimeout(() => {
+        if (barrel) barrel.classList.remove('animate-barrel-shake');
+        if (stickElem) {
+          stickElem.style.transform = stickElem.style.transform.replace(' translateY(-45px)', '');
+        }
+
+        const results = [];
+        for (let i = 0; i < count; i++) {
+          const isGuaranteed = (count === 10 && i === 9 && !results.some(r => r.rarity === 'SSR' || r.rarity === 'SR'));
+          const prize = pickPrize(isGuaranteed ? 'SR+' : null);
+          if (prize) {
+            registerWin(prize);
+            results.push(prize);
+          }
+        }
+        isDrawing = false;
+        if (callback) callback(results);
+      }, 1200);
+    }
+
+    function renderEggGrid(count) {
+      const container = document.getElementById('eggGridList');
+      if (!container) return;
+      container.innerHTML = '';
+
+      for (let i = 1; i <= count; i++) {
+        const eggWrapper = document.createElement('div');
+        eggWrapper.className = 'egg-unit group relative flex flex-col items-center cursor-pointer select-none transition-transform hover:scale-105 my-3 mx-2';
+        eggWrapper.setAttribute('data-egg-index', i);
+
+        /* 完整還原截圖：完整金蛋狀態 + 敲破狀態 (右半殼脫落、禮物外露、鋸齒蛋口) */
+        eggWrapper.innerHTML = `
+          <!-- 蛋與碎殼組合體容器 -->
+          <div id="eggShellContainer_${i}" class="relative w-28 sm:w-32 h-36 sm:h-40 flex items-end justify-center transition-all duration-300">
+            
+            <!-- 狀態 A：完整未敲的金蛋 (帶紅緞帶與福字) -->
+            <div id="intactEgg_${i}" class="relative w-full h-full flex flex-col items-center justify-center transition-all duration-200">
+              <div class="w-full h-full rounded-[50%_50%_45%_45%_/_60%_60%_40%_40%] bg-gradient-to-br from-yellow-200 via-amber-400 to-amber-600 border-4 border-amber-300 shadow-[0_12px_28px_rgba(245,158,11,0.5),inset_0_6px_14px_rgba(255,255,255,0.8)] flex flex-col items-center justify-center relative overflow-hidden">
+                <div class="absolute top-3 left-4 w-6 h-12 bg-white/45 rounded-full rotate-[-25deg] blur-[2px]"></div>
+                
+                <!-- 截圖同款紅緞帶與蝴蝶結福字 -->
+                <div class="w-full h-5 bg-gradient-to-r from-red-700 via-rose-500 to-red-700 shadow-md flex items-center justify-center relative z-10 my-auto">
+                  <div class="w-6 h-6 rounded-full bg-red-600 border border-amber-300 flex items-center justify-center text-[10px] font-black text-amber-200 shadow">
+                    福
+                  </div>
+                </div>
+                <div class="absolute bottom-2 text-[10px] font-black text-amber-950 font-serif opacity-80">
+                  ${i} 號金蛋
+                </div>
+              </div>
+            </div>
+
+            <!-- 狀態 B：敲破後的狀態 (預設隱藏，敲中時瞬間切換) -->
+            <div id="crackedEggStage_${i}" class="hidden relative w-full h-full flex items-end justify-center">
+              
+              <!-- 底座上半截鋸齒狀金蛋主體 -->
+              <div class="relative w-24 sm:w-26 h-28 rounded-b-[45%] bg-gradient-to-br from-yellow-200 via-amber-400 to-amber-600 border-3 border-amber-300 shadow-lg overflow-hidden flex flex-col justify-end items-center z-10">
+                <!-- 頂端金色尖銳破口鋸齒 -->
+                <div class="absolute top-0 left-0 right-0 h-7 bg-amber-800 [clip-path:polygon(0%_100%,10%_0%,25%_100%,40%_0%,55%_100%,70%_0%,85%_100%,100%_0%,100%_100%)]"></div>
+                <div class="absolute top-0.5 left-0 right-0 h-7 bg-amber-500 [clip-path:polygon(0%_100%,10%_0%,25%_100%,40%_0%,55%_100%,70%_0%,85%_100%,100%_0%,100%_100%)]"></div>
+
+                <!-- 蛋內露出的禮物 (圖案與名稱，如截圖所示) -->
+                <div id="eggRevealedContent_${i}" class="relative z-20 flex flex-col items-center justify-center pb-2 text-center">
+                  <div id="eggPrizeIcon_${i}" class="text-3xl sm:text-4xl filter drop-shadow">🎁</div>
+                  <div id="eggPrizeName_${i}" class="text-[11px] font-black text-slate-950 bg-amber-200/90 px-1.5 py-0.5 rounded shadow max-w-[85px] truncate mt-0.5">
+                    神秘好禮
+                  </div>
+                </div>
+
+                <!-- 下半身紅蝴蝶結絲帶 -->
+                <div class="w-full h-4 bg-gradient-to-r from-red-700 via-rose-500 to-red-700 flex items-center justify-center relative z-20 mb-2">
+                  <div class="w-5 h-5 rounded-full bg-red-600 border border-amber-300 flex items-center justify-center text-[9px] font-black text-amber-200">
+                    福
+                  </div>
+                </div>
+              </div>
+
+              <!-- 參考截圖：右側掉落並斜躺在底座旁的鋸齒碎蛋殼！ -->
+              <div class="absolute -right-5 bottom-0 w-14 sm:w-16 h-18 sm:h-20 bg-gradient-to-tr from-amber-600 via-amber-400 to-yellow-200 border-2 border-amber-300 rounded-b-[40%] [clip-path:polygon(0%_40%,25%_0%,50%_35%,75%_0%,100%_30%,100%_100%,0%_100%)] rotate-[24deg] shadow-xl z-20 transition-transform origin-bottom-left">
+                <div class="w-full h-full bg-amber-900/20 [clip-path:polygon(0%_45%,25%_5%,50%_40%,75%_5%,100%_35%,100%_100%,0%_100%)]"></div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Red Wood Pedestal 圓形紅木底座 -->
+          <div class="w-28 sm:w-34 h-5 bg-gradient-to-r from-amber-900 via-amber-700 to-amber-900 rounded-[50%] border border-amber-400 shadow-md -mt-2 relative z-0 flex items-center justify-center">
+            <div class="w-20 sm:w-26 h-1.5 bg-amber-950/60 rounded-full"></div>
+          </div>
+        `;
+
+        eggWrapper.addEventListener('click', (e) => {
+          smashEggVertical(i, results => showResultsModal(results));
+        });
+
+        container.appendChild(eggWrapper);
+      }
+    }
+
+    function smashEggVertical(eggIndex, callback, count = 1) {
+      if (isDrawing) return;
+      isDrawing = true;
+
+      getAudioContext();
+
+      const hammer = document.getElementById('globalHammer');
+      const intactEgg = document.getElementById(`intactEgg_${eggIndex}`);
+      const crackedStage = document.getElementById(`crackedEggStage_${eggIndex}`);
+      const eggContainer = document.getElementById(`eggShellContainer_${eggIndex}`);
+      if (!intactEgg || !crackedStage || !eggContainer) { isDrawing = false; return; }
+
+      // 預先抽取獲獎結果
+      const results = [];
+      for (let i = 0; i < count; i++) {
+        const isGuaranteed = (count === 10 && i === 9 && !results.some(r => r.rarity === 'SSR' || r.rarity === 'SR'));
+        const prize = pickPrize(isGuaranteed ? 'SR+' : null);
+        if (prize) {
+          registerWin(prize);
+          results.push(prize);
+        }
+      }
+      const firstPrize = results[0];
+
+      // 設定破殼後直接顯露在蛋裡的禮物圖標與名稱
+      if (firstPrize) {
+        const iconElem = document.getElementById(`eggPrizeIcon_${eggIndex}`);
+        const nameElem = document.getElementById(`eggPrizeName_${eggIndex}`);
+        if (iconElem) iconElem.textContent = firstPrize.icon || '🎁';
+        if (nameElem) nameElem.textContent = firstPrize.name || '精美禮品';
+      }
+
+      // 精準定位木槌：讓木槌左下方的圓柱打擊面準確命中金蛋的右上斜頂
+      const rect = eggContainer.getBoundingClientRect();
+      const hammerTargetX = rect.left + (rect.width * 0.44); 
+      const hammerTargetY = rect.top - 62;
+
+      if (hammer) {
+        hammer.style.left = `${hammerTargetX}px`;
+        hammer.style.top = `${hammerTargetY}px`;
+        hammer.classList.remove('hidden');
+        hammer.style.animation = 'none';
+        void hammer.offsetWidth; // 強制重繪刷新動畫
+        hammer.style.animation = 'hammerSmashDirect 0.72s cubic-bezier(0.22, 0.95, 0.35, 1) forwards';
+      }
+
+      // 42% 動畫進度 (約 300ms)：木槌圓柱打擊面劈中蛋頂那一瞬間！
+      setTimeout(() => {
+        // 1. 砸中那一剎那立馬發出爆裂砸蛋音效！
+        playSound('heavySmash');
+
+        // 2. 金蛋瞬間爆開：切換為截圖同款形態（右半殼掉落 + 蛋中露出禮品）
+        intactEgg.classList.add('hidden');
+        crackedStage.classList.remove('hidden');
+
+        // 3. 敲擊點爆出同款四散彩紙花屑
+        if (typeof confetti === 'function') {
+          confetti({
+            particleCount: 65,
+            spread: 80,
+            origin: { 
+              x: (rect.left + rect.width * 0.6) / window.innerWidth,
+              y: (rect.top + rect.height * 0.35) / window.innerHeight
+            },
+            colors: ['#ffd700', '#f59e0b', '#ffffff', '#ef4444', '#38bdf8', '#a855f7']
+          });
+        }
+      }, 300);
+
+      // 動畫收尾：木槌退場，彈出獲獎卡片
+      setTimeout(() => {
+        if (hammer) {
+          hammer.classList.add('hidden');
+          hammer.style.animation = '';
+        }
+        isDrawing = false;
+        if (callback) callback(results);
+      }, 820);
+    }
+
+    function renderFlipCards() {
+      const container = document.getElementById('gridFlipCards');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const numColors = [
+        '#f59e0b', '#38bdf8', '#ef4444',
+        '#84cc16', '#eab308', '#ec4899',
+        '#06b6d4', '#f472b6', '#10b981'
+      ];
+
+      for (let i = 1; i <= 9; i++) {
+        const cardWrapper = document.createElement('div');
+        cardWrapper.className = 'card-slot w-24 sm:w-32 h-36 sm:h-48 perspective-1000 cursor-pointer select-none';
+        cardWrapper.setAttribute('data-card-num', i);
+
+        const innerCard = document.createElement('div');
+        innerCard.id = `tarotCard_${i}`;
+        innerCard.className = 'relative w-full h-full rounded-2xl transform-style-3d transition-transform duration-700 shadow-xl';
+
+        // Baroque Gold Pattern Front
+        const frontFace = document.createElement('div');
+        frontFace.className = 'absolute inset-0 rounded-2xl bg-gradient-to-b from-[#2b110b] via-[#3a150e] to-[#200906] border-2 border-amber-600/70 p-2 flex flex-col items-center justify-center backface-hidden shadow-inner group hover:scale-[1.03] transition-transform';
+        
+        frontFace.innerHTML = `
+          <div class="relative w-full h-full rounded-xl border border-amber-500/40 flex items-center justify-center p-1 overflow-hidden">
+            <svg class="absolute inset-0 w-full h-full text-amber-500/40 pointer-events-none" viewBox="0 0 100 140" fill="none" stroke="currentColor" stroke-width="1.2">
+              <ellipse cx="50" cy="70" rx="38" ry="58" stroke-dasharray="2 2" />
+              <ellipse cx="50" cy="70" rx="32" ry="50" opacity="0.6" />
+              <circle cx="50" cy="70" r="22" stroke="currentColor" opacity="0.3" />
+            </svg>
+            <div class="relative z-10 text-4xl sm:text-5xl font-black font-sans filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]" style="color: ${numColors[i - 1]};">
+              ${i}
+            </div>
+          </div>
+        `;
+
+        // Card Back
+        const backFace = document.createElement('div');
+        backFace.id = `tarotRevealed_${i}`;
+        backFace.className = 'absolute inset-0 rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 border-2 border-amber-400 p-2 flex flex-col items-center justify-center backface-hidden [transform:rotateY(180deg)] text-center shadow-2xl';
+        backFace.innerHTML = `
+          <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-400 text-slate-950 font-black mb-1">REVEALED</span>
+          <div class="text-3xl my-1">🎁</div>
+          <p class="text-[11px] font-bold text-white line-clamp-2 leading-tight">神秘大獎</p>
+        `;
+
+        innerCard.appendChild(frontFace);
+        innerCard.appendChild(backFace);
+        cardWrapper.appendChild(innerCard);
+
+        // Hover to attract Shin-Chan directly to this card!
+        cardWrapper.addEventListener('mouseenter', () => {
+          moveShinChanToCard(cardWrapper, `大姐姐選 ${i} 號！這張有動感超人啦～`);
+        });
+
+        // Hover to attract Little Star mascot directly to this card!
+        cardWrapper.addEventListener('mouseenter', () => {
+          moveShinChanToCard(cardWrapper, `大家選 ${i} 號！這張感覺有大獎喔～`);
+        });
+
+        cardWrapper.addEventListener('click', () => {
+          flipSelectedCard(i, results => showResultsModal(results));
+        });
+
+        container.appendChild(cardWrapper);
+      }
+
+      startShinChanWandering();
+    }
+
+    function moveShinChanToCard(slotElement, customQuote = null) {
+      const mascot = document.getElementById('shinChanMascot');
+      const speech = document.getElementById('shinSpeechText');
+      const grid = document.getElementById('gridFlipCards');
+      const frontSvg = document.getElementById('shinFrontWaveSvg');
+      const buttSvg = document.getElementById('shinButtDanceSvg');
+      if (!mascot || !slotElement || !grid) return;
+
+      const rect = slotElement.getBoundingClientRect();
+      const parentRect = grid.getBoundingClientRect();
+
+      const relX = rect.left - parentRect.left + (rect.width / 2) - 45;
+      const relY = rect.top - parentRect.top - 70;
+
+      mascot.style.transform = `translate(${relX}px, ${relY}px)`;
+      if (speech && customQuote) speech.textContent = customQuote;
+
+      // 隨機切換姿態：75% 機率正面熱情揮手呼喊，25% 偶爾調皮扭動
+      const isButt = Math.random() < 0.25;
+      if (frontSvg && buttSvg) {
+        if (isButt) {
+          frontSvg.classList.add('hidden');
+          buttSvg.classList.remove('hidden');
+        } else {
+          buttSvg.classList.add('hidden');
+          frontSvg.classList.remove('hidden');
+        }
+      }
+    }
+
+    function startShinChanWandering() {
+      if (shinMascotInterval) clearInterval(shinMascotInterval);
+      const quotes = [
+        "選我選我！小星覺得這張裡面有大獎啦～",
+        "嘿嘿～憑小星的第六感，點這張必中！",
+        "幸運星光閃閃～選這張就對了！",
+        "這張裡面好像有超級限量好禮喔！",
+        "看小星為你指路！選這張保證不虧～"
+      ];
+
+      const wander = () => {
+        const slots = document.querySelectorAll('.card-slot');
+        if (slots.length === 0) return;
+        const randomSlot = slots[Math.floor(Math.random() * slots.length)];
+        const quote = quotes[Math.floor(Math.random() * quotes.length)];
+        moveShinChanToCard(randomSlot, quote);
+      };
+
+      wander();
+      shinMascotInterval = setInterval(wander, 3200);
+    }
+
+    function flipSelectedCard(cardIndex, callback, count = 1) {
+      if (isDrawing) return;
+      isDrawing = true;
+
+      playSound('cardFlip');
+      const results = [];
+      for (let i = 0; i < count; i++) {
+        const isGuaranteed = (count === 10 && i === 9 && !results.some(r => r.rarity === 'SSR' || r.rarity === 'SR'));
+        const prize = pickPrize(isGuaranteed ? 'SR+' : null);
+        if (prize) {
+          registerWin(prize);
+          results.push(prize);
+        }
+      }
+
+      const card = document.getElementById(`tarotCard_${cardIndex}`);
+      const revealedFace = document.getElementById(`tarotRevealed_${cardIndex}`);
+      const firstPrize = results[0];
+
+      if (revealedFace && firstPrize) {
+        revealedFace.innerHTML = `
+          <span class="text-[9px] px-2 py-0.5 rounded font-black mb-1 ${
+            firstPrize.rarity === 'SSR' ? 'bg-amber-400 text-slate-950' :
+            firstPrize.rarity === 'SR' ? 'bg-purple-500 text-white' : 'bg-blue-500 text-white'
+          }">${firstPrize.rarity}</span>
+          <div class="text-3xl my-1 filter drop-shadow">${firstPrize.icon || '🎁'}</div>
+          <p class="text-xs font-bold text-white line-clamp-2 leading-tight px-1">${firstPrize.name}</p>
+        `;
+      }
+
+      if (card) card.style.transform = 'rotateY(180deg)';
+
+      setTimeout(() => {
+        isDrawing = false;
+        if (callback) callback(results);
+        setTimeout(() => {
+          if (card) card.style.transform = 'rotateY(0deg)';
+        }, 800);
+      }, 700);
+    }
+
+    function showResultsModal(results, stickNum = null) {
+      if (!results || results.length === 0) return;
+
+      const hasSSR = results.some(r => r.rarity === 'SSR');
+      const hasSR = results.some(r => r.rarity === 'SR');
+
+      if (hasSSR) playSound('winSSR');
+      else playSound('winCommon');
+
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: hasSSR ? 150 : 70,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: hasSSR ? ['#ffd700', '#f59e0b', '#d946ef', '#ffffff'] : ['#a855f7', '#3b82f6', '#10b981']
+        });
+      }
+
+      const modal = document.getElementById('revealModal');
+      const container = document.getElementById('cardsGrid');
+      const glow = document.getElementById('revealGlow');
+      const stickStage = document.getElementById('stickStageContainer');
+      const flippableStick = document.getElementById('flippableStickCard');
+      const headerTitle = document.getElementById('revealHeader');
+      const subHeader = document.getElementById('revealSubheader');
+      container.innerHTML = '';
+
+      glow.className = `absolute w-[700px] h-[700px] rounded-full blur-[160px] pointer-events-none opacity-40 ${
+        hasSSR ? 'bg-amber-500' : hasSR ? 'bg-purple-600' : 'bg-blue-600'
+      }`;
+
+      if (currentMode === 'sticks' && results.length === 1) {
+        stickStage.classList.remove('hidden');
+        stickStage.classList.add('flex');
+        container.classList.add('hidden');
+
+        headerTitle.textContent = '求 得 靈 籤！';
+        subHeader.textContent = 'AUSPICIOUS LOTTERY';
+
+        const singlePrize = results[0];
+        const num = stickNum || Math.floor(Math.random() * 9) + 1;
+        document.getElementById('revealedStickNum').textContent = num;
+        document.getElementById('revealedPrizeIcon').textContent = singlePrize.icon || '🎁';
+        document.getElementById('revealedPrizeName').textContent = singlePrize.name;
+        document.getElementById('revealedPrizeMsg').textContent = singlePrize.message || '吉星照耀，心想事成！';
+        
+        const badge = document.getElementById('revealedRarityBadge');
+        badge.textContent = singlePrize.rarity;
+        badge.className = `px-2.5 py-0.5 rounded-full text-xs font-black mb-2 ${
+          singlePrize.rarity === 'SSR' ? 'bg-amber-400 text-slate-950 font-black' :
+          singlePrize.rarity === 'SR' ? 'bg-purple-500 text-white font-bold' :
+          singlePrize.rarity === 'R' ? 'bg-blue-500 text-white font-medium' : 'bg-slate-600 text-slate-200'
+        }`;
+
+        flippableStick.style.transform = 'rotateY(0deg)';
+        flippableStick.onclick = () => {
+          playSound('cardFlip');
+          flippableStick.style.transform = flippableStick.style.transform === 'rotateY(180deg)' ? 'rotateY(0deg)' : 'rotateY(180deg)';
+        };
+
+      } else {
+        stickStage.classList.add('hidden');
+        stickStage.classList.remove('flex');
+        container.classList.remove('hidden');
+
+        headerTitle.textContent = '祈願召喚成功！';
+        subHeader.textContent = 'CONGRATULATIONS';
+
+        results.forEach((item, idx) => {
+          const card = document.createElement('div');
+          card.className = `w-40 sm:w-44 p-3.5 rounded-2xl flex flex-col items-center text-center bg-slate-900/90 border border-purple-500/30 transform hover:scale-105 transition-all shadow-xl backdrop-blur-md`;
+          
+          const rarityBadgeColor = {
+            SSR: 'bg-amber-400 text-slate-950 font-black',
+            SR: 'bg-purple-500 text-white font-bold',
+            R: 'bg-blue-500 text-white font-medium',
+            N: 'bg-slate-600 text-slate-200'
+          }[item.rarity] || 'bg-slate-700 text-white';
+
+          card.innerHTML = `
+            <div class="w-full flex items-center justify-between mb-2">
+              <span class="text-[10px] px-2 py-0.5 rounded-full ${rarityBadgeColor}">${item.rarity}</span>
+              <span class="text-[10px] text-slate-400">#${idx + 1}</span>
+            </div>
+            <div class="text-4xl sm:text-5xl my-2 filter drop-shadow">${item.icon || '🎁'}</div>
+            <h4 class="text-xs sm:text-sm font-bold text-white leading-tight line-clamp-2 my-1">${item.name}</h4>
+            <p class="text-[10px] text-slate-300/80 italic mt-1 line-clamp-2">${item.message || '恭喜中獎！'}</p>
+          `;
+          container.appendChild(card);
+        });
+      }
+
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+    }
+
+    function closeResultsModal() {
+      document.getElementById('revealModal').classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function handleExcelUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const data = new Uint8Array(evt.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+          if (rows.length < 2) return;
+
+          const parsedPrizes = [];
+          const colors = ['#f59e0b', '#eab308', '#a855f7', '#9333ea', '#3b82f6', '#2563eb', '#64748b', '#475569'];
+
+          for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            if (!row || !row[0]) continue;
+
+            const name = String(row[0]).trim();
+            const icon = row[1] ? String(row[1]).trim() : '🎁';
+            const rarity = ['SSR', 'SR', 'R', 'N'].includes(String(row[2]).trim().toUpperCase()) 
+                            ? String(row[2]).trim().toUpperCase() : 'R';
+            const stock = !isNaN(parseInt(row[3])) ? parseInt(row[3]) : 0;
+            const weight = !isNaN(parseInt(row[4])) && parseInt(row[4]) > 0 ? parseInt(row[4]) : 10;
+            const color = row[5] ? String(row[5]).trim() : colors[i % colors.length];
+            const message = row[6] ? String(row[6]).trim() : '心想事成，幸運降臨！';
+
+            parsedPrizes.push({
+              id: 'imp_' + Date.now() + '_' + i,
+              name, icon, rarity, stock, initialStock: stock, weight, color, message
+            });
+          }
+
+          if (parsedPrizes.length > 0) {
+            prizes = parsedPrizes;
+            savePrizes();
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function downloadTemplate() {
+      const templateData = [
+        ['獎品名稱', '圖標', '稀有度(SSR/SR/R/N)', '庫存數量(0為無限)', '權重(數字越大機率越高)', '代表顏色(色碼)', '中獎專屬寄語'],
+        ['特獎：iPhone 16 Pro', '📱', 'SSR', 1, 1, '#f59e0b', '全場最幸運大贏家！'],
+        ['二獎：Sony 降噪耳機', '🎧', 'SR', 3, 5, '#a855f7', '享受純粹音樂饗宴！'],
+        ['三獎：電影票雙人套票', '🍿', 'R', 10, 20, '#3b82f6', '假日放鬆看大片！'],
+        ['安慰獎：開運小禮盒', '🧧', 'N', 0, 50, '#64748b', '心想事成，好運常伴！']
+      ];
+      const ws = XLSX.utils.aoa_to_sheet(templateData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, '卡池範本');
+      XLSX.writeFile(wb, '抽獎獎品匯入範本.xlsx');
+    }
+
+    function updateUI() {
+      const activePrizes = prizes.filter(p => p.stock > 0 || p.stock === 0);
+      const poolStatus = document.getElementById('poolStatusCount');
+      if (poolStatus) poolStatus.textContent = `卡池運作中 (${activePrizes.length} 項珍寶)`;
+      
+      // Update Student Pool Display if enabled
+      const poolSection = document.getElementById('studentPoolSection');
+      const poolCards = document.getElementById('studentPoolCards');
+      const poolSummary = document.getElementById('studentPoolSummary');
+      
+      if (poolSection && poolCards) {
+        if (showPoolToStudents) {
+          poolSection.classList.remove('hidden');
+          const totalStock = prizes.reduce((sum, p) => sum + (p.initialStock === 0 ? 99 : p.stock), 0);
+          if (poolSummary) poolSummary.textContent = `共 ${prizes.length} 種獎項`;
+
+          poolCards.innerHTML = '';
+          prizes.forEach(p => {
+            const isOut = (p.initialStock > 0 && p.stock <= 0);
+            const card = document.createElement('div');
+            card.className = `p-2 rounded-xl border flex items-center gap-2 text-xs transition-all ${
+              isOut ? 'bg-slate-900/40 border-slate-800 opacity-40' : 'bg-slate-800/80 border-purple-500/20'
+            }`;
+            card.innerHTML = `
+              <span class="text-xl">${p.icon || '🎁'}</span>
+              <div class="flex-1 min-w-0">
+                <div class="font-bold text-white truncate text-[11px]">${p.name}</div>
+                <div class="flex items-center justify-between mt-0.5">
+                  <span class="text-[9px] px-1 rounded font-black ${
+                    p.rarity === 'SSR' ? 'bg-amber-400 text-slate-950' :
+                    p.rarity === 'SR' ? 'bg-purple-500 text-white' : 'bg-blue-500 text-white'
+                  }">${p.rarity}</span>
+                  <span class="text-[10px] font-mono ${isOut ? 'text-rose-400 font-bold' : 'text-slate-300'}">
+                    ${p.initialStock === 0 ? '不限量' : `剩 ${p.stock}`}
+                  </span>
+                </div>
+              </div>
+            `;
+            poolCards.appendChild(card);
+          });
+        } else {
+          poolSection.classList.add('hidden');
+        }
+      }
+
+      drawWheel();
+      renderAdminTable();
+    }
+
+    function renderAdminTable() {
+      const tbody = document.getElementById('prizesTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const totalWeight = prizes.filter(p => p.stock !== 0 || p.initialStock === 0)
+                                .reduce((acc, p) => acc + (p.weight || 1), 0);
+
+      prizes.forEach((prize) => {
+        const isDepleted = (prize.stock === 0 && prize.initialStock > 0);
+        const effectiveWeight = isDepleted ? 0 : (prize.weight || 1);
+        const chance = totalWeight > 0 ? ((effectiveWeight / totalWeight) * 100).toFixed(1) : '0.0';
+
+        const tr = document.createElement('tr');
+        tr.className = `hover:bg-slate-800/40 transition-colors ${isDepleted ? 'opacity-40' : ''}`;
+        tr.innerHTML = `
+          <td class="p-2.5 flex items-center gap-2">
+            <span class="text-xl">${prize.icon}</span>
+            <div>
+              <div class="font-bold text-white">${prize.name}</div>
+              <div class="text-[10px] text-slate-400 font-mono">${prize.color}</div>
+            </div>
+          </td>
+          <td class="p-2.5">
+            <span class="px-2 py-0.5 rounded text-[10px] font-black ${
+              prize.rarity === 'SSR' ? 'bg-amber-400 text-slate-950' :
+              prize.rarity === 'SR' ? 'bg-purple-500 text-white' :
+              prize.rarity === 'R' ? 'bg-blue-500 text-white' : 'bg-slate-600 text-slate-200'
+            }">${prize.rarity}</span>
+          </td>
+          <td class="p-2.5 text-center font-mono">
+            ${prize.initialStock === 0 ? '<span class="text-emerald-400 font-bold">無限</span>' : 
+              `<span class="${prize.stock === 0 ? 'text-rose-500 font-black' : 'text-slate-200'}">${prize.stock} / ${prize.initialStock}</span>`}
+          </td>
+          <td class="p-2.5 text-center font-mono text-purple-300 font-bold">${prize.weight}</td>
+          <td class="p-2.5 text-center font-mono text-amber-300 font-bold">${chance}%</td>
+          <td class="p-2.5 text-right space-x-1">
+            <button onclick="editPrizeStock('${prize.id}', 1)" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-slate-200 text-[11px]">+1</button>
+            <button onclick="editPrizeStock('${prize.id}', -1)" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-slate-200 text-[11px]">-1</button>
+            <button onclick="deletePrize('${prize.id}')" class="px-2 py-0.5 bg-rose-950/80 hover:bg-rose-900 text-rose-300 rounded text-[11px]">刪除</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    window.editPrizeStock = function(id, delta) {
+      const item = prizes.find(p => p.id === id);
+      if (item && item.initialStock > 0) {
+        item.stock = Math.max(0, item.stock + delta);
+        savePrizes();
+      }
+    };
+
+    window.deletePrize = function(id) {
+      if (prizes.length <= 2) return;
+      prizes = prizes.filter(p => p.id !== id);
+      savePrizes();
+    };
+
+    window.onload = function() {
+      initData();
+      setupCanvas();
+      renderBarrelSticks();
+      renderEggGrid(currentEggCount);
+      renderFlipCards();
+
+      window.addEventListener('resize', () => {
+        setupCanvas();
+        drawWheel();
+      });
+
+      // Mode Switch Controls
+      const btnModeWheel = document.getElementById('btnModeWheel');
+      const btnModeBox = document.getElementById('btnModeBox');
+      const btnModeSticks = document.getElementById('btnModeSticks');
+      const btnModeEgg = document.getElementById('btnModeEgg');
+      const btnModeCards = document.getElementById('btnModeCards');
+
+      const wheelContainer = document.getElementById('wheelContainer');
+      const boxContainer = document.getElementById('boxContainer');
+      const sticksContainer = document.getElementById('sticksContainer');
+      const eggContainer = document.getElementById('eggContainer');
+      const cardsGridContainer = document.getElementById('cardsGridContainer');
+
+      const headline = document.getElementById('stageHeadline');
+      const singlePullIcon = document.getElementById('singlePullIcon');
+      const singlePullLabel = document.getElementById('singlePullLabel');
+
+      const setModeButtons = (activeBtn) => {
+        [btnModeWheel, btnModeBox, btnModeSticks, btnModeEgg, btnModeCards].forEach(btn => {
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white flex items-center gap-1';
+        });
+        activeBtn.className = 'px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all bg-gradient-to-r from-amber-500 to-purple-600 text-white shadow-md flex items-center gap-1';
+      };
+
+      const hideAllModes = () => {
+        wheelContainer.classList.add('hidden');
+        boxContainer.classList.add('hidden');
+        sticksContainer.classList.add('hidden');
+        eggContainer.classList.add('hidden');
+        cardsGridContainer.classList.add('hidden');
+      };
+
+      btnModeWheel.addEventListener('click', () => {
+        currentMode = 'wheel';
+        setModeButtons(btnModeWheel);
+        hideAllModes();
+        wheelContainer.classList.remove('hidden');
+        headline.textContent = '旋轉命運之輪・探尋傳奇珍寶';
+        singlePullIcon.textContent = '⭐';
+        singlePullLabel.textContent = '祈願單抽';
+        setupCanvas();
+        drawWheel();
+      });
+
+      btnModeBox.addEventListener('click', () => {
+        currentMode = 'box';
+        setModeButtons(btnModeBox);
+        hideAllModes();
+        boxContainer.classList.remove('hidden');
+        headline.textContent = '星穹神秘盲盒・喚醒沉睡神蹟';
+        singlePullIcon.textContent = '🎁';
+        singlePullLabel.textContent = '開啟盲盒';
+      });
+
+      btnModeSticks.addEventListener('click', () => {
+        currentMode = 'sticks';
+        setModeButtons(btnModeSticks);
+        hideAllModes();
+        sticksContainer.classList.remove('hidden');
+        headline.textContent = '招財開運靈籤・心誠自得天寶';
+        singlePullIcon.textContent = '🎋';
+        singlePullLabel.textContent = '誠心抽籤';
+        renderBarrelSticks();
+      });
+
+      btnModeEgg.addEventListener('click', () => {
+        currentMode = 'egg';
+        setModeButtons(btnModeEgg);
+        hideAllModes();
+        eggContainer.classList.remove('hidden');
+        headline.textContent = '幸運金蛋賀歲・金槌垂直定音';
+        singlePullIcon.textContent = '🔨';
+        singlePullLabel.textContent = '一槌定音';
+        renderEggGrid(currentEggCount);
+      });
+
+      btnModeCards.addEventListener('click', () => {
+        currentMode = 'cards';
+        setModeButtons(btnModeCards);
+        hideAllModes();
+        cardsGridContainer.classList.remove('hidden');
+        headline.textContent = '命運秘牌九宮・小星靈犀指路';
+        singlePullIcon.textContent = '🎴';
+        singlePullLabel.textContent = '靈犀翻牌';
+        renderFlipCards();
+      });
+
+      // Egg Count Selector Buttons
+      document.querySelectorAll('.btn-egg-count').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.btn-egg-count').forEach(b => {
+            b.className = 'btn-egg-count px-3 py-1 rounded-lg text-xs font-semibold text-slate-300 hover:text-white';
+          });
+          btn.className = 'btn-egg-count px-3 py-1 rounded-lg text-xs font-bold bg-amber-500 text-slate-950 shadow';
+          currentEggCount = parseInt(btn.getAttribute('data-count')) || 3;
+          renderEggGrid(currentEggCount);
+        });
+      });
+
+      // 復原金蛋按鈕
+      const btnResetAllEggs = document.getElementById('btnResetAllEggs');
+      if (btnResetAllEggs) {
+        btnResetAllEggs.addEventListener('click', () => {
+          renderEggGrid(currentEggCount);
+        });
+      }
+
+      // Pull Single Trigger
+      const triggerSingle = () => {
+        getAudioContext();
+        if (currentMode === 'wheel') {
+          spinWheel(results => showResultsModal(results));
+        } else if (currentMode === 'box') {
+          isDrawing = true;
+          const boxVisual = document.getElementById('boxVisual');
+          boxVisual.classList.add('animate-spin');
+          setTimeout(() => {
+            boxVisual.classList.remove('animate-spin');
+            const prize = pickPrize();
+            if (prize) registerWin(prize);
+            isDrawing = false;
+            showResultsModal(prize ? [prize] : []);
+          }, 800);
+        } else if (currentMode === 'sticks') {
+          shakeSticks(results => showResultsModal(results), 1);
+        } else if (currentMode === 'egg') {
+          const randomEggId = Math.floor(Math.random() * currentEggCount) + 1;
+          smashEggVertical(randomEggId, results => showResultsModal(results), 1);
+        } else if (currentMode === 'cards') {
+          const randomCardId = Math.floor(Math.random() * 9) + 1;
+          flipSelectedCard(randomCardId, results => showResultsModal(results), 1);
+        }
+      };
+
+      // Pull Ten Trigger
+      const triggerTen = () => {
+        getAudioContext();
+        if (currentMode === 'sticks') {
+          shakeSticks(results => showResultsModal(results), 10);
+        } else if (currentMode === 'egg') {
+          smashEggVertical(1, results => showResultsModal(results), 10);
+        } else if (currentMode === 'cards') {
+          flipSelectedCard(5, results => showResultsModal(results), 10);
+        } else {
+          const results = [];
+          for (let i = 0; i < 10; i++) {
+            const isGuaranteed = (i === 9 && !results.some(r => r.rarity === 'SSR' || r.rarity === 'SR'));
+            const prize = pickPrize(isGuaranteed ? 'SR+' : null);
+            if (prize) {
+              registerWin(prize);
+              results.push(prize);
+            }
+          }
+          showResultsModal(results);
+        }
+      };
+
+      document.getElementById('btnPullOne').addEventListener('click', triggerSingle);
+      document.getElementById('btnWheelCenter').addEventListener('click', triggerSingle);
+      document.getElementById('interactiveBox').addEventListener('click', triggerSingle);
+      document.getElementById('barrelAssembly').addEventListener('click', triggerSingle);
+      document.getElementById('btnPullTen').addEventListener('click', triggerTen);
+      document.getElementById('btnCloseReveal').addEventListener('click', closeResultsModal);
+
+      // Student Pool Visibility Toggle in Admin
+      const chkShowPool = document.getElementById('chkShowPoolToStudents');
+      const labelPoolVisibility = document.getElementById('labelPoolVisibility');
+      if (chkShowPool) {
+        chkShowPool.addEventListener('change', (e) => {
+          showPoolToStudents = e.target.checked;
+          localStorage.setItem('astra_show_pool_students', showPoolToStudents ? 'true' : 'false');
+          if (labelPoolVisibility) {
+            labelPoolVisibility.textContent = showPoolToStudents ? '開啟 (公開)' : '關閉 (隱藏)';
+          }
+          updateUI();
+        });
+      }
+
+      // Sound Toggle
+      document.getElementById('btnToggleSound').addEventListener('click', () => {
+        isMuted = !isMuted;
+        document.getElementById('soundIcon').textContent = isMuted ? '🔇' : '🔔';
+      });
+
+      // Admin Modal Triggers
+      const adminModal = document.getElementById('adminModal');
+      document.getElementById('btnOpenAdmin').addEventListener('click', () => {
+        renderAdminTable();
+        adminModal.classList.remove('opacity-0', 'pointer-events-none');
+      });
+      document.getElementById('btnCloseAdmin').addEventListener('click', () => {
+        adminModal.classList.add('opacity-0', 'pointer-events-none');
+      });
+      document.getElementById('btnSaveCloseAdmin').addEventListener('click', () => {
+        savePrizes();
+        adminModal.classList.add('opacity-0', 'pointer-events-none');
+      });
+
+      // Presets
+      document.getElementById('btnLoadGacha').addEventListener('click', () => {
+        prizes = JSON.parse(JSON.stringify(DEFAULT_PRESETS.gacha));
+        savePrizes();
+      });
+      document.getElementById('btnLoadParty').addEventListener('click', () => {
+        prizes = JSON.parse(JSON.stringify(DEFAULT_PRESETS.party));
+        savePrizes();
+      });
+      document.getElementById('btnLoadGift').addEventListener('click', () => {
+        prizes = JSON.parse(JSON.stringify(DEFAULT_PRESETS.gift));
+        savePrizes();
+      });
+
+      // Add Prize
+      document.getElementById('addPrizeForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('inputPrizeName').value.trim();
+        const icon = document.getElementById('inputPrizeIcon').value.trim() || '🎁';
+        const rarity = document.getElementById('inputPrizeRarity').value;
+        const stock = parseInt(document.getElementById('inputPrizeStock').value) || 0;
+        const weight = parseInt(document.getElementById('inputPrizeWeight').value) || 1;
+
+        const colors = { SSR: '#f59e0b', SR: '#a855f7', R: '#3b82f6', N: '#64748b' };
+        prizes.push({
+          id: 'prize_' + Date.now(),
+          name, icon, rarity, stock, initialStock: stock, weight,
+          color: colors[rarity] || '#a855f7',
+          message: '心想事成，幸運降臨！'
+        });
+        savePrizes();
+        document.getElementById('inputPrizeName').value = '';
+      });
+
+      document.getElementById('btnResetPoolStock').addEventListener('click', () => {
+        prizes.forEach(p => { if (p.initialStock > 0) p.stock = p.initialStock; });
+        savePrizes();
+      });
+
+      // File Handlers
+      const fileInput = document.getElementById('excelFileInput');
+      document.getElementById('btnTriggerUpload').addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', handleExcelUpload);
+      document.getElementById('btnDownloadTemplate').addEventListener('click', downloadTemplate);
+
+      document.getElementById('btnExportPrizes').addEventListener('click', () => {
+        const jsonStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(prizes, null, 2));
+        const dlAnchor = document.createElement('a');
+        dlAnchor.setAttribute("href", jsonStr);
+        dlAnchor.setAttribute("download", "lucky_pool_config.json");
+        dlAnchor.click();
+      });
+
+      // History Modal
+      const historyModal = document.getElementById('historyModal');
+      document.getElementById('btnOpenHistory').addEventListener('click', () => {
+        const list = document.getElementById('historyList');
+        list.innerHTML = '';
+        if (winnersHistory.length === 0) {
+          list.innerHTML = '<li class="text-slate-500 text-center py-4">尚無得獎紀錄</li>';
+        } else {
+          winnersHistory.forEach(w => {
+            const li = document.createElement('li');
+            li.className = 'flex items-center justify-between p-2 rounded-lg bg-slate-900 border border-slate-800';
+            li.innerHTML = `
+              <div class="flex items-center gap-2">
+                <span class="text-lg">${w.prizeIcon}</span>
+                <div>
+                  <span class="font-bold text-white">${w.prizeName}</span>
+                  <span class="text-[9px] px-1.5 py-0.2 rounded ml-1 font-black ${
+                    w.rarity === 'SSR' ? 'bg-amber-400 text-slate-950' :
+                    w.rarity === 'SR' ? 'bg-purple-500 text-white' : 'bg-blue-500 text-white'
+                  }">${w.rarity}</span>
+                </div>
+              </div>
+              <span class="text-[10px] text-slate-400 font-mono">${w.timestamp}</span>
+            `;
+            list.appendChild(li);
+          });
+        }
+        historyModal.classList.remove('opacity-0', 'pointer-events-none');
+      });
+
+      document.getElementById('btnCloseHistory').addEventListener('click', () => {
+        historyModal.classList.add('opacity-0', 'pointer-events-none');
+      });
+
+      document.getElementById('btnClearHistory').addEventListener('click', () => {
+        winnersHistory = [];
+        saveHistory();
+        document.getElementById('historyList').innerHTML = '<li class="text-slate-500 text-center py-4">尚無得獎紀錄</li>';
+      });
+
+      document.getElementById('btnExportCSV').addEventListener('click', () => {
+        if (winnersHistory.length === 0) return;
+        let csvContent = "data:text/csv;charset=utf-8,\uFEFF得獎品項,稀有度,開獎時間\n";
+        winnersHistory.forEach(w => {
+          csvContent += `"${w.prizeName}","${w.rarity}","${w.timestamp}"\n`;
+        });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `中獎名單_${new Date().toLocaleDateString()}.csv`);
+        link.click();
+      });
+    };
+  </script>
+</body>
+</html>
