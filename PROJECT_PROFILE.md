@@ -1,4 +1,4 @@
-# ⏱️ 專案 03：課堂教學工具大廳 (bio-tools)
+﻿# ⏱️ 專案 03：課堂教學工具大廳 (bio-tools)
 
 本檔案為 **大廳三（bio-tools）** 之權威專案身分證與架構設定檔。
 
@@ -7,7 +7,7 @@
 ## 📌 專案基本資料
 
 * **專案識別名稱**：`03_大廳三_課堂教學工具大廳 (bio-tools)`
-* **本機唯一路徑**：`D:\AI Agent\教學專案系統\03_大廳三_課堂教學工具大廳 (bio-tools)`
+* **本機唯一路徑**：`D:\antigravity\教學專案系統\03_大廳三_課堂教學工具大廳 (bio-tools)`
 * **GitHub 倉庫**：[`zeroseven-hue/bio-tools`](https://github.com/zeroseven-hue/bio-tools)
 * **GitHub Pages 線上站點**：[https://zeroseven-hue.github.io/bio-tools/](https://zeroseven-hue.github.io/bio-tools/)
 * **Git 主要分支**：`master`
