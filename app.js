@@ -124,3 +124,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize collapse states from LocalStorage
   loadCollapseState();
 });
+
+// 🔒 大廳三 教師安全鎖 (預設 8088，無提示洩漏)
+function toggleTeacherPinLock() {
+    const cur = localStorage.getItem('teacher_global_pin') || '8088';
+    const pwd = prompt('🔒 請輸入教師管理解鎖密碼：');
+    if (pwd === cur) {
+        alert('✅ 密碼正確，已解鎖教師管理工具！');
+    } else if (pwd !== null) {
+        alert('❌ 密碼錯誤！');
+    }
+}
