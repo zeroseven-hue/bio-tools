@@ -357,5 +357,18 @@
   </div>
 
   <script src="app.js?v=2.0"></script>
+
+  <!-- 🔒 教師安全防護 PIN 密碼解鎖 Modal -->
+  <div id="pinLockModal" class="pin-modal-overlay">
+    <div class="pin-modal-card">
+      <div class="pin-icon">🔒</div>
+      <h2>課堂教學工具大廳 安全鎖</h2>
+      <p>本大廳包含各項教學工具與評分設定，請輸入教師管理密碼解鎖進入：</p>
+      <input type="password" id="pinInput" placeholder="請輸入密碼" maxlength="10" autocomplete="off">
+      <div id="pinErrorMsg" class="pin-error-text"></div>
+      <button id="btnSubmitPin" class="btn-pin-submit">🔓 解鎖進入大廳</button>
+    </div>
+  </div>
+
 </body>
 </html>
