@@ -1,7 +1,7 @@
 
 // --- 🌓 大廳三 主題切換邏輯 ---
 function initHall3Theme() {
-  const saved = localStorage.getItem('bio_hall3_theme') || 'dark';
+  const saved = localStorage.getItem('bio_hall3_theme') || 'light';
   document.documentElement.setAttribute('data-theme', saved);
 }
 function toggleHall3Theme() {
