@@ -1,3 +1,74 @@
+
+/* 🌓 大廳三 海洋藍 雙主題支援 (Light / Dark) */
+:root, [data-theme="dark"] {
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
+  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  --card-bg: rgba(30, 41, 59, 0.75);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --text-main: #f8fafc;
+  --text-sub: #94a3b8;
+  --accent-gold: #f59e0b;
+}
+
+[data-theme="light"] {
+  --primary-color: #0284c7;
+  --primary-hover: #0369a1;
+  --bg-gradient: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --card-border: rgba(2, 132, 199, 0.2);
+  --text-main: #0c4a6e;
+  --text-sub: #0369a1;
+  --accent-gold: #d97706;
+}
+
+[data-theme="light"] .lobby-header,
+[data-theme="light"] .category-section,
+[data-theme="light"] .dispatch-card {
+  background: #ffffff;
+  border-color: #bae6fd;
+  box-shadow: 0 10px 25px rgba(2, 132, 199, 0.08);
+}
+
+[data-theme="light"] .category-header {
+  background: #f0f9ff;
+}
+[data-theme="light"] .category-header h3,
+[data-theme="light"] .logo-area h1,
+[data-theme="light"] .tool-card h3,
+[data-theme="light"] .lobby-bar-actions h2,
+[data-theme="light"] .dispatch-card h2 {
+  color: #075985;
+}
+[data-theme="light"] .logo-area h1 code {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+[data-theme="light"] .hall-nav-btn {
+  background: #f8fafc;
+  color: #0284c7;
+  border-color: #e2e8f0;
+}
+[data-theme="light"] .hall-nav-btn:hover {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+[data-theme="light"] .tool-card {
+  background: #ffffff;
+  border-color: #e0f2fe;
+  box-shadow: 0 4px 15px rgba(2, 132, 199, 0.06);
+}
+[data-theme="light"] .btn-toggle-all,
+[data-theme="light"] .btn-collapse-toggle {
+  background: #f0f9ff;
+  color: #0284c7;
+  border-color: #bae6fd;
+}
+[data-theme="light"] .card-tags span {
+  background: #f0f9ff;
+  color: #0369a1;
+}
+
 /* bio-tools Main Lobby Style (大廳三) - V2.0 Categorized Collapsible Style */
 :root {
   --primary-color: #2563eb;

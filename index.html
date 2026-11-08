@@ -11,10 +11,16 @@
 <body>
   <div class="lobby-container">
     <header class="lobby-header">
-      <div class="logo-area">
-        <div class="hall-tag">🏛️ 大廳三 ‧ 課堂教學工具專區</div>
-        <h1>🛠️ 國中生物與課堂互動教學工具大廳 <code>bio-tools</code></h1>
-        <p>提供大螢幕投影互動、iPad 雙向操控、專注計時、公平抽籤分組與小組競賽記分音效器</p>
+      <div class="logo-area" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+        <div style="flex:1; min-width:280px;">
+          <div class="hall-tag">🏛️ 大廳三 ‧ 課堂教學工具專區</div>
+          <h1>🛠️ 國中生物與課堂互動教學工具大廳 <code>bio-tools</code></h1>
+          <p>提供大螢幕投影互動、iPad 雙向操控、專注計時、公平抽籤分組與小組競賽記分音效器</p>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <button id="themeToggleBtn" style="background:var(--card-bg, #1e293b); color:var(--text-main, #f8fafc); border:1px solid var(--card-border, #475569); padding:7px 14px; border-radius:20px; font-weight:700; cursor:pointer; font-size:0.85rem;" onclick="toggleHall3Theme()">🌓 切換模式</button>
+          <button id="btnTeacherPinLock" style="background:#1e293b; color:#f8fafc; border:1px solid #475569; padding:7px 16px; border-radius:20px; font-weight:700; cursor:pointer; font-size:0.85rem;" onclick="toggleTeacherPinLock()">🔒 教師管理鎖</button>
+        </div>
       </div>
 
       <!-- 四大大廳跨頁面導覽列 -->
@@ -36,8 +42,7 @@
           <span class="text">大廳四：班級經營神器</span>
         </a>
       </nav>
-      <div style="text-align:right; padding:6px 16px;"><button id="btnTeacherPinLock" style="background:#1e293b; color:#f8fafc; border:1px solid #475569; padding:6px 14px; border-radius:6px; font-weight:700; cursor:pointer;" onclick="toggleTeacherPinLock()">🔒 教師管理鎖</button></div>
-</header>
+      </header>
 
     <main class="lobby-main">
       <div class="lobby-bar-actions">
@@ -351,10 +356,7 @@
 
     </main>
 
-    <footer class="lobby-footer">
-      <p>bio-tools 國中生物與課堂互動教學工具大廳 &copy; 2026 | 專為 GitHub Pages 部署設計 | 相容 Windows, iPad & 觸控大螢幕</p>
-    </footer>
-  </div>
+    </div>
 
   <script src="app.js?v=2.0"></script>
 
@@ -371,8 +373,9 @@
   </div>
 
 
-<!-- 版權與研發宣告頁尾 -->
-<footer class="platform-copyright-footer" style="margin-top: 50px; padding: 26px 16px; text-align: center; color: var(--text-muted, #64748b); font-size: 0.88rem; border-top: 1px dashed rgba(100, 116, 139, 0.25); line-height: 1.8;">
+
+<!-- 全站統一版權與研發宣告頁尾 -->
+<footer class="platform-copyright-footer" style="margin-top: 50px; padding: 26px 16px; text-align: center; color: var(--text-muted, var(--text-sub, #64748b)); font-size: 0.88rem; border-top: 1px dashed rgba(100, 116, 139, 0.25); line-height: 1.8;">
   <div style="font-weight: 800; font-size: 0.95rem; margin-bottom: 3px;">🧬 國中生物課堂數位互動教學平台</div>
   <div>研發設計：<b>零柒老師 Selin</b></div>
   <div style="font-size: 0.78rem; opacity: 0.85; margin-top: 4px;">

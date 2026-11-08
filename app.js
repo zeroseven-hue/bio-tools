@@ -1,3 +1,16 @@
+
+// --- 🌓 大廳三 主題切換邏輯 ---
+function initHall3Theme() {
+  const saved = localStorage.getItem('bio_hall3_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+}
+function toggleHall3Theme() {
+  const cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', cur);
+  localStorage.setItem('bio_hall3_theme', cur);
+}
+initHall3Theme();
+
 // bio-tools Main Lobby JavaScript (大廳三) - V2.0 Categorized Collapsible Logic
 document.addEventListener('DOMContentLoaded', () => {
   const LOCAL_STORAGE_COLLAPSE_KEY = 'bio_tools_collapsed_categories';
