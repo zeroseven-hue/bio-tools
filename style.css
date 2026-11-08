@@ -12,13 +12,13 @@
 }
 
 [data-theme="light"] {
-  --primary-color: #0284c7;
-  --primary-hover: #0369a1;
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
   --bg-gradient: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
   --card-bg: rgba(255, 255, 255, 0.95);
   --card-border: rgba(2, 132, 199, 0.2);
-  --text-main: #0c4a6e;
-  --text-sub: #0369a1;
+  --text-main: #1e3a8a;
+  --text-sub: #1d4ed8;
   --accent-gold: #d97706;
 }
 
@@ -38,20 +38,20 @@
 [data-theme="light"] .tool-card h3,
 [data-theme="light"] .lobby-bar-actions h2,
 [data-theme="light"] .dispatch-card h2 {
-  color: #075985;
+  color: #1e40af;
 }
 [data-theme="light"] .logo-area h1 code {
   background: #e0f2fe;
-  color: #0284c7;
+  color: #2563eb;
 }
 [data-theme="light"] .hall-nav-btn {
   background: #f8fafc;
-  color: #0284c7;
+  color: #2563eb;
   border-color: #e2e8f0;
 }
 [data-theme="light"] .hall-nav-btn:hover {
   background: #e0f2fe;
-  color: #0369a1;
+  color: #1d4ed8;
 }
 [data-theme="light"] .tool-card {
   background: #ffffff;
@@ -61,12 +61,12 @@
 [data-theme="light"] .btn-toggle-all,
 [data-theme="light"] .btn-collapse-toggle {
   background: #f0f9ff;
-  color: #0284c7;
+  color: #2563eb;
   border-color: #bae6fd;
 }
 [data-theme="light"] .card-tags span {
   background: #f0f9ff;
-  color: #0369a1;
+  color: #1d4ed8;
 }
 
 /* bio-tools Main Lobby Style (大廳三) - V2.0 Categorized Collapsible Style */
