@@ -661,3 +661,56 @@ body {
 .btn-pin-submit:active {
   transform: translateY(0);
 }
+
+
+    /* 🌟 全大廳統一 1~5 導覽列規格 */
+    .unified-hall-nav {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px dashed rgba(100, 116, 139, 0.25);
+    }
+    .nav-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-decoration: none;
+      background: #ffffff;
+      color: #334155;
+      border: 1.5px solid #cbd5e1;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+      user-select: none;
+      white-space: nowrap;
+    }
+    [data-theme="dark"] .nav-chip {
+      background: rgba(255, 255, 255, 0.05);
+      color: #cbd5e1;
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    .nav-chip:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .nav-chip:active {
+      transform: translateY(1px) scale(0.97);
+    }
+    .hall-chip-1:hover { border-color: #16a34a; color: #16a34a; box-shadow: 0 4px 14px rgba(22,163,74,0.25); }
+    .hall-chip-1.active { background: #16a34a !important; color: #ffffff !important; border-color: #15803d !important; box-shadow: 0 4px 14px rgba(22,163,74,0.4) !important; }
+    .hall-chip-2:hover { border-color: #db2777; color: #db2777; box-shadow: 0 4px 14px rgba(219,39,119,0.25); }
+    .hall-chip-2.active { background: #db2777 !important; color: #ffffff !important; border-color: #be185d !important; box-shadow: 0 4px 14px rgba(219,39,119,0.4) !important; }
+    .hall-chip-3:hover { border-color: #2563eb; color: #2563eb; box-shadow: 0 4px 14px rgba(37,99,235,0.25); }
+    .hall-chip-3.active { background: #2563eb !important; color: #ffffff !important; border-color: #1d4ed8 !important; box-shadow: 0 4px 14px rgba(37,99,235,0.4) !important; }
+    .hall-chip-4:hover { border-color: #dc2626; color: #dc2626; box-shadow: 0 4px 14px rgba(220,38,38,0.25); }
+    .hall-chip-4.active { background: #dc2626 !important; color: #ffffff !important; border-color: #b91c1c !important; box-shadow: 0 4px 14px rgba(220,38,38,0.4) !important; }
+    .hall-chip-5:hover { border-color: #f59e0b; color: #f59e0b; box-shadow: 0 4px 14px rgba(245,158,11,0.25); }
+    .hall-chip-5.active { background: #f59e0b !important; color: #ffffff !important; border-color: #d97706 !important; box-shadow: 0 4px 14px rgba(245,158,11,0.4) !important; }
+    

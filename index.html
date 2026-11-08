@@ -10,39 +10,38 @@
 </head>
 <body>
   <div class="lobby-container">
-    <header class="lobby-header">
-      <div class="logo-area" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
-        <div style="flex:1; min-width:280px;">
-          <div class="hall-tag">🏛️ 大廳三 ‧ 課堂教學工具專區</div>
-          <h1>🛠️ 國中生物與課堂互動教學工具大廳 <code>bio-tools</code></h1>
-          <p>提供大螢幕投影互動、iPad 雙向操控、專注計時、公平抽籤分組與小組競賽記分音效器</p>
+        <header class="lobby-header">
+      <div class="logo-area" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+        <div style="flex:1; min-width:280px; text-align:left;">
+          <div class="hall-tag" style="display:inline-block; background:rgba(37,99,235,0.15); color:#2563eb; border:1px solid rgba(37,99,235,0.3); padding:4px 12px; border-radius:20px; font-size:0.85rem; font-weight:700; margin-bottom:8px;">🏛️ 大廳三 ‧ 課堂教學工具專區</div>
+          <h1 style="margin:0 0 6px 0; font-size:1.85rem; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">🛠️ 國中生物與課堂互動教學工具大廳 <code style="font-size:1.05rem; padding:2px 8px; border-radius:6px;">bio-tools</code></h1>
+          <p style="margin:0; font-size:0.92rem; color:var(--text-sub, #64748b);">提供大螢幕投影互動、iPad 雙向操控、專注計時、公平抽籤分組與小組競賽記分音效器</p>
         </div>
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-          <button id="themeToggleBtn" style="background:var(--card-bg, #1e293b); color:var(--text-main, #f8fafc); border:1px solid var(--card-border, #475569); padding:7px 14px; border-radius:20px; font-weight:700; cursor:pointer; font-size:0.85rem;" onclick="toggleHall3Theme()">🌓 切換模式</button>
-          <button id="btnTeacherPinLock" style="background:#1e293b; color:#f8fafc; border:1px solid #475569; padding:7px 16px; border-radius:20px; font-weight:700; cursor:pointer; font-size:0.85rem;" onclick="toggleTeacherPinLock()">🔒 教師管理鎖</button>
+          <button id="themeToggleBtn" class="top-util-btn" style="background:var(--card-bg, #ffffff); color:var(--text-main, #0f172a); border:1.5px solid var(--card-border, #cbd5e1); padding:7px 14px; border-radius:20px; font-weight:700; cursor:pointer; font-size:0.85rem; box-shadow:0 2px 6px rgba(0,0,0,0.06); transition:all 0.2s;" onclick="toggleHall3Theme()">🌙 切換模式</button>
+          <button id="btnTeacherPinLock" class="top-util-btn" style="background:#1e293b; color:#f8fafc; border:1.5px solid #475569; padding:7px 16px; border-radius:20px; font-weight:700; cursor:pointer; font-size:0.85rem; box-shadow:0 2px 6px rgba(0,0,0,0.15); transition:all 0.2s;" onclick="toggleTeacherPinLock()">🔒 教師管理鎖</button>
         </div>
       </div>
 
-      <!-- 四大大廳跨頁面導覽列 -->
-      <nav class="hall-nav-bar">
-        <a href="https://zeroseven-hue.github.io/bio-games/" class="hall-nav-btn hall-1">
-          <span class="icon">🎮</span>
-          <span class="text">大廳一：共用題庫遊戲</span>
+      <!-- 全大廳統一 1~5 號導覽列 -->
+      <nav class="unified-hall-nav">
+        <a href="https://zeroseven-hue.github.io/bio-games/" class="nav-chip hall-chip-1">
+          <span>🎮</span> 大廳一：共用題庫遊戲
         </a>
-        <a href="https://zeroseven-hue.github.io/bio-standalone-games/" class="hall-nav-btn hall-2">
-          <span class="icon">🧩</span>
-          <span class="text">大廳二：獨立單元遊戲</span>
+        <a href="https://zeroseven-hue.github.io/bio-standalone-games/" class="nav-chip hall-chip-2">
+          <span>🧩</span> 大廳二：獨立單元遊戲
         </a>
-        <a href="index.html" class="hall-nav-btn hall-3 active">
-          <span class="icon">🛠️</span>
-          <span class="text">大廳三：課堂教學工具</span>
+        <a href="index.html" class="nav-chip hall-chip-3 active">
+          <span>🛠️</span> 大廳三：課堂教學工具
         </a>
-        <a href="https://zeroseven-hue.github.io/bio-classroom/" class="hall-nav-btn hall-4">
-          <span class="icon">🏫</span>
-          <span class="text">大廳四：班級經營神器</span>
+        <a href="https://zeroseven-hue.github.io/bio-classroom/" class="nav-chip hall-chip-4">
+          <span>🏫</span> 大廳四：班級經營神器
+        </a>
+        <a href="https://zeroseven-hue.github.io/bio-dashboard/" class="nav-chip hall-chip-5">
+          <span>📊</span> 大廳五：課堂評量神器
         </a>
       </nav>
-      </header>
+    </header>
 
     <main class="lobby-main">
       <div class="lobby-bar-actions">
