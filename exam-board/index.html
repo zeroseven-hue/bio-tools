@@ -103,12 +103,16 @@
             background: #eff6ff;
         }
 
-        textarea.board-input {
+        textarea.board-input,
+        .rich-notice-box {
             border: 1.5px solid #cbd5e1;
             border-radius: 12px;
             resize: none;
+            outline: none;
+            transition: border-color 0.2s, background-color 0.2s;
         }
-        textarea.board-input:focus {
+        textarea.board-input:focus,
+        .rich-notice-box:focus {
             border-color: #1d4ed8;
             background: #ffffff;
         }
@@ -267,7 +271,7 @@
         }
         body.mock-exam-mode #schedulePane {
             flex: none;
-            width: var(--mock-left-width, 56%);
+            width: var(--mock-left-width, 54%);
             height: 100%;
         }
         body.mock-exam-mode #hSplitter {
@@ -291,7 +295,7 @@
             display: flex;
             flex-direction: column;
         }
-        body.mock-exam-mode #examRulesText {
+        body.mock-exam-mode #examRulesBox {
             height: 100% !important;
             flex: 1;
         }
@@ -556,8 +560,8 @@
                 <div class="splitter-bar"></div>
             </div>
 
-            <!-- 子區塊 B：考場注意事項 (引導模式在下方；會考模式在右方) -->
-            <div id="noticeCard" style="height: 225px;" class="bg-white rounded-2xl border-2 border-amber-400 shadow-lg overflow-hidden shrink-0 flex flex-col min-h-0 min-w-[240px]">
+            <!-- 子區塊 B：考場注意事項 (支援重點色彩標記 + 可現場點擊微調文字) -->
+            <div id="noticeCard" style="height: 235px;" class="bg-white rounded-2xl border-2 border-amber-400 shadow-lg overflow-hidden shrink-0 flex flex-col min-h-0 min-w-[240px]">
                 <div class="bg-amber-50 border-b border-amber-200 px-5 py-2.5 flex flex-wrap justify-between items-center gap-2 shrink-0">
                     <div class="text-amber-900 font-extrabold text-lg sm:text-xl flex items-center gap-2">
                         <span>⚠️</span> 考場注意事項
@@ -581,10 +585,30 @@
 
                 <div id="noticeBody" class="collapse-content flex-1 min-h-0">
                     <div class="p-3 bg-amber-50/30 h-full flex flex-col">
-                        <textarea id="examRulesText" class="board-input w-full flex-1 p-3.5 notice-zoom-text font-bold text-slate-900 bg-white" spellcheck="false">1. 桌面淨空，僅保留 2B 鉛筆、橡皮擦、黑色原子筆等規定文具。
-2. 行動電話請完全關機並放入書包；嚴禁使用具通訊、計算、傳輸功能之穿戴裝置。
-3. 考試開始 15 分鐘後不得入場，未滿規定時間不得提早交卷出場。
-4. 看清題號與作答區；鐘聲響畢請立即停筆，違者依考場規定扣分。</textarea>
+                        <div id="examRulesBox" contenteditable="true" spellcheck="false" class="rich-notice-box w-full flex-1 p-3.5 notice-zoom-text font-bold text-slate-900 bg-white overflow-y-auto custom-scrollbar space-y-2.5">
+                            <div>
+                                <span class="text-blue-900 font-extrabold">📱 1. 行動裝置、智慧手錶／手環等穿戴裝置：</span><span>嚴禁隨身攜帶或使用。</span>
+                            </div>
+                            <div>
+                                <div class="text-blue-900 font-extrabold">
+                                    ✏️ 2. 應試文具與墊板規定（<span class="text-rose-600 bg-rose-100 px-1.5 py-0.5 rounded font-black">全程嚴禁借用文具</span>）
+                                </div>
+                                <div class="pl-1 space-y-0.5">
+                                    <div>• 電腦卡：2B鉛筆、橡皮擦。</div>
+                                    <div>• 手寫題：限用黑筆。</div>
+                                    <div>• 墊板僅限無字無圖全透明墊板，下方禁墊紙張。</div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="text-blue-900 font-extrabold">📋 3. 考場紀律與作答常規</div>
+                                <div class="pl-1 space-y-0.5">
+                                    <div>• 收到卡卷立即填寫並劃記「班級、座號、姓名」。</div>
+                                    <div>• 桌面抽屜清空，書桌反轉，書包置於兩側；全程禁飲食、喝水、交談或東張西望。</div>
+                                    <div>• 鐘響前不得提前交卷；測驗期間禁止趴睡、把玩物品或從事與考試無關之行為。</div>
+                                    <div>• 鐘聲響起立即停筆，由排尾向前收。</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -593,15 +617,15 @@
     </main>
 
     <script>
-        const STORAGE_KEY = 'exam_board_v6_data';
+        const STORAGE_KEY = 'exam_board_v8_data';
 
         let state = {
             mode: 'guide',           // 'guide' | 'mock'
             clockZoom: 1.0,
             scheduleZoom: 1.0,
             noticeZoom: 1.0,
-            guideNoticeHeight: 225,  // 引導模式下，注意事項區塊高度 (px)
-            mockLeftWidthPct: 56,    // 會考模式下，左側考程區寬度百分比 (%)
+            guideNoticeHeight: 235,  // 引導模式下，注意事項區塊高度 (px)
+            mockLeftWidthPct: 54,    // 會考模式下，左側考程區寬度百分比 (%)
             collapsed: {
                 clockBody: false,
                 attendanceBody: false,
@@ -846,7 +870,7 @@
                 totalStudents: totalIn.value,
                 actualStudents: actualIn.value,
                 specialNotes: document.getElementById('specialNotes').value,
-                examRulesText: document.getElementById('examRulesText').value,
+                examRulesHtml: document.getElementById('examRulesBox').innerHTML,
                 inputs
             };
             localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
@@ -863,7 +887,7 @@
                 if (payload.totalStudents !== undefined) totalIn.value = payload.totalStudents;
                 if (payload.actualStudents !== undefined) actualIn.value = payload.actualStudents;
                 if (payload.specialNotes !== undefined) document.getElementById('specialNotes').value = payload.specialNotes;
-                if (payload.examRulesText !== undefined) document.getElementById('examRulesText').value = payload.examRulesText;
+                if (payload.examRulesHtml !== undefined) document.getElementById('examRulesBox').innerHTML = payload.examRulesHtml;
 
                 if (payload.inputs) {
                     document.querySelectorAll('[data-save]').forEach(el => {
@@ -882,7 +906,7 @@
                     document.getElementById('scheduleScrollArea').style.setProperty('--zoom', state.scheduleZoom || 1);
                     document.getElementById('scheduleZoomLabel').textContent = Math.round((state.scheduleZoom || 1) * 100) + '%';
                     document.getElementById('noticeCard').style.setProperty('--notice-zoom', state.noticeZoom || 1);
-                    document.getElementById('rightColumn').style.setProperty('--mock-left-width', (state.mockLeftWidthPct || 56) + '%');
+                    document.getElementById('rightColumn').style.setProperty('--mock-left-width', (state.mockLeftWidthPct || 54) + '%');
 
                     // 還原收合狀態
                     const cardMap = {
@@ -915,14 +939,14 @@
             }
         }
 
-        // 監聽所有輸入框自動存檔
-        document.querySelectorAll('[data-save], #specialNotes, #examRulesText').forEach(el => {
+        // 監聽所有輸入框與富文本規則框自動存檔
+        document.querySelectorAll('[data-save], #specialNotes').forEach(el => {
             el.addEventListener('input', saveAllData);
         });
+        document.getElementById('examRulesBox').addEventListener('input', saveAllData);
 
         initSplitters();
         loadAllData();
     </script>
 </body>
 </html>
-
