@@ -1,31 +1,90 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>考場數位黑板 - 時鐘與考程版 (含字型縮放)</title>
+    <title>考場數位黑板 - 引導與會考雙模式版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@700&display=swap');
 
-        body { 
-            box-sizing: border-box; 
-            font-family: 'Inter', system-ui, sans-serif; 
-            background-color: #f8fafc; /* 護眼淺灰底色 */
-            color: #0f172a; 
+        body {
+            box-sizing: border-box;
+            font-family: 'Inter', 'Noto Sans TC', system-ui, sans-serif;
+            background-color: #f1f5f9;
+            color: #0f172a;
         }
 
         /* 超大時鐘數字字體 */
-        .font-mono-time { 
-            font-family: 'JetBrains Mono', monospace; 
-            font-variant-numeric: tabular-nums; 
+        .font-mono-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-variant-numeric: tabular-nums;
         }
 
-        /* === 專屬字型縮放邏輯 (右側專用) === */
-        #rightPanel { --zoom: 1; }
-        .zoom-text-lg { font-size: calc(1.125rem * var(--zoom)); }
-        .zoom-text-xl { font-size: calc(1.25rem * var(--zoom)); }
-        .zoom-w-time { width: calc(12rem * var(--zoom)); min-width: 120px; }
+        /* 隱藏數字輸入框預設箭頭，避免擠壓數字造成裁切 */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* === 時鐘區專屬縮放邏輯（支援大幅度放大，適合 65~70 吋觸屏） === */
+        #clockCard {
+            --clock-zoom: 1;
+        }
+        .clock-date-zoom {
+            font-size: calc(1.55rem * var(--clock-zoom));
+            line-height: 1.25;
+        }
+        .clock-main-zoom {
+            font-size: calc(5.8rem * var(--clock-zoom));
+            line-height: 1;
+        }
+        .clock-colon-zoom {
+            font-size: calc(4.5rem * var(--clock-zoom));
+            line-height: 1;
+        }
+        .clock-sec-zoom {
+            font-size: calc(2rem * var(--clock-zoom));
+            line-height: 1;
+        }
+
+        /* === 考程區專屬字型縮放邏輯 === */
+        #scheduleScrollArea {
+            --zoom: 1;
+        }
+        .zoom-text-badge {
+            font-size: calc(1.1rem * var(--zoom));
+            white-space: nowrap;
+        }
+        .zoom-text-row {
+            font-size: calc(1.25rem * var(--zoom));
+        }
+        /* 時間欄防裁切保護：保證起訖時間完整同行顯示，不被擠掉 */
+        .zoom-time-input {
+            font-size: calc(1.25rem * var(--zoom));
+            width: 11.5em;
+            min-width: 175px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        /* 考科欄精簡寬度：國數英社自僅 2~4 字，不搶時間欄空間 */
+        .zoom-subject-input {
+            font-size: calc(1.3rem * var(--zoom));
+            min-width: 100px;
+        }
+
+        /* === 注意事項區獨立縮放邏輯 === */
+        #noticeCard {
+            --notice-zoom: 1;
+        }
+        .notice-zoom-text {
+            font-size: calc(1.15rem * var(--notice-zoom));
+            line-height: 1.65;
+        }
 
         /* 乾淨的輸入框風格 (像在白板上填空) */
         .board-input {
@@ -34,288 +93,836 @@
             border-bottom: 2px solid #cbd5e1;
             border-radius: 0;
             padding: 4px 8px;
-            color: #1e293b;
+            color: #0f172a;
             font-weight: 700;
             outline: none;
             transition: border-color 0.2s, background-color 0.2s;
         }
-        .board-input:focus { 
-            border-bottom-color: #3b82f6; 
-            background: #eff6ff; 
+        .board-input:focus {
+            border-bottom-color: #1d4ed8;
+            background: #eff6ff;
         }
-        
-        textarea.board-input { 
-            border: 1px solid #cbd5e1; 
-            border-radius: 8px; 
-            resize: none; 
-            border-bottom: 1px solid #cbd5e1; 
-        }
-        textarea.board-input:focus { border-color: #3b82f6; }
 
-        /* 摺疊面板動畫 */
-        .collapse-content {
-            display: grid;
-            grid-template-rows: 1fr;
-            transition: grid-template-rows 0.3s ease-out;
+        textarea.board-input {
+            border: 1.5px solid #cbd5e1;
+            border-radius: 12px;
+            resize: none;
         }
-        .collapse-content > div { overflow: hidden; }
-        .collapse-content.collapsed { grid-template-rows: 0fr; }
-        
-        .arrow-icon { transition: transform 0.3s ease; }
-        .collapsed .arrow-icon { transform: rotate(-90deg); }
+        textarea.board-input:focus {
+            border-color: #1d4ed8;
+            background: #ffffff;
+        }
+
+        /* 摺疊面板：收合時直接隱藏內容，確保 100% 不露字、不留白 */
+        .collapse-content.collapsed {
+            display: none !important;
+        }
+
+        .arrow-icon {
+            transition: transform 0.22s ease;
+        }
+        .collapsed .arrow-icon {
+            transform: rotate(-90deg);
+        }
 
         /* 閃爍的秒數冒號 */
-        .blink { animation: blinker 1s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0.3; } }
+        .blink {
+            animation: blinker 1s linear infinite;
+        }
+        @keyframes blinker {
+            50% { opacity: 0.25; }
+        }
 
-        /* 自訂右側捲軸 */
-        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        /* 自訂捲軸 */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* === 可拖曳分隔線樣式 (支援觸屏與滑鼠) === */
+        .splitter-h {
+            height: 16px;
+            cursor: row-resize;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: none;
+            user-select: none;
+            flex-shrink: 0;
+        }
+        .splitter-h .splitter-bar {
+            width: 72px;
+            height: 6px;
+            border-radius: 999px;
+            background-color: #cbd5e1;
+            transition: background-color 0.15s, transform 0.15s;
+        }
+        .splitter-h:hover .splitter-bar,
+        .splitter-h.dragging .splitter-bar {
+            background-color: #2563eb;
+            transform: scaleX(1.2);
+        }
+
+        .splitter-v {
+            width: 18px;
+            cursor: col-resize;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            touch-action: none;
+            user-select: none;
+            flex-shrink: 0;
+        }
+        .splitter-v .splitter-bar {
+            width: 6px;
+            height: 72px;
+            border-radius: 999px;
+            background-color: #cbd5e1;
+            transition: background-color 0.15s, transform 0.15s;
+        }
+        .splitter-v:hover .splitter-bar,
+        .splitter-v.dragging .splitter-bar {
+            background-color: #2563eb;
+            transform: scaleY(1.2);
+        }
+
+        /* === 會考模式：上方精簡出缺席橫列 + 下方左右分割 (左：考程 / 右：注意事項) === */
+        body.mock-exam-mode #mainContainer {
+            flex-direction: column;
+        }
+        body.mock-exam-mode #clockCard {
+            display: none;
+        }
+        body.mock-exam-mode #leftColumn {
+            width: 100%;
+            height: auto;
+            overflow: visible;
+            flex-shrink: 0;
+        }
+        body.mock-exam-mode #attendanceCard {
+            flex: none;
+            min-height: 0;
+        }
+        body.mock-exam-mode #attendanceInner {
+            flex-direction: row;
+            align-items: center;
+            padding: 0.65rem 1.25rem;
+            gap: 1.25rem;
+        }
+        body.mock-exam-mode #statsGrid {
+            width: auto;
+            flex-shrink: 0;
+            padding: 0.35rem 0.65rem;
+            gap: 0.75rem;
+        }
+        body.mock-exam-mode #statsGrid > div {
+            flex-direction: row;
+            gap: 0.45rem;
+            padding: 0.3rem 0.7rem;
+        }
+        body.mock-exam-mode #statsGrid input {
+            margin-top: 0;
+            width: 3.6rem;
+            font-size: 1.5rem;
+            padding: 2px 4px;
+        }
+        body.mock-exam-mode #absentStudents {
+            margin-top: 0;
+            line-height: 1.2;
+            font-size: 1.65rem;
+        }
+        body.mock-exam-mode #notesWrapper {
+            flex: 1;
+            flex-direction: row;
+            align-items: center;
+            min-height: 0;
+            gap: 0.75rem;
+        }
+        body.mock-exam-mode #notesLabel {
+            margin-bottom: 0;
+            white-space: nowrap;
+        }
+        body.mock-exam-mode #specialNotes {
+            height: 44px;
+            padding: 0.45rem 0.85rem;
+            font-size: 1.15rem;
+        }
+
+        /* 會考模式下，右欄轉為左右雙欄並排 */
+        body.mock-exam-mode #rightColumn {
+            width: 100%;
+            flex: 1;
+            min-height: 0;
+            flex-direction: row;
+            gap: 0;
+        }
+        body.mock-exam-mode #schedulePane {
+            flex: none;
+            width: var(--mock-left-width, 56%);
+            height: 100%;
+        }
+        body.mock-exam-mode #hSplitter {
+            display: none;
+        }
+        body.mock-exam-mode #vSplitter {
+            display: flex;
+        }
+        body.mock-exam-mode #noticeCard {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        body.mock-exam-mode #noticeBody {
+            flex: 1;
+            min-height: 0;
+        }
+        body.mock-exam-mode #noticeBody > div {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        body.mock-exam-mode #examRulesText {
+            height: 100% !important;
+            flex: 1;
+        }
     </style>
-
   <!-- 🔒 學生派發模式自動隱藏返回大廳按鈕 -->
   <script>
     if (window.location.search.includes('dispatch=true')) {
       document.documentElement.classList.add('dispatch-mode');
       document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('a[href*="index.html"], .btn-back').forEach(function(el) {
-          el.style.display = 'none';
-        });
-      });
-    }
-  </script>
-  <style>
-    html.dispatch-mode a[href*="index.html"],
-    html.dispatch-mode .btn-back {
-      display: none !important;
-    }
-  </style>
-
+        document.querySelectorAll('a[href*=" index.html\], .btn-back').forEach(function(el) {
+ el.style.display = 'none';
+ });
+ });
+ }
+ </script>
+ <style>
+ html.dispatch-mode a[href*=\index.html\],
+ html.dispatch-mode .btn-back {
+ display: none !important;
+ }
+ </style>
 </head>
-<body class="h-screen overflow-hidden flex flex-col">
+<body class="h-screen overflow-hidden flex flex-col select-none sm:select-auto">
 
-    <div class="fixed top-0 left-0 right-0 bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center z-50 shadow-sm">
-        <div class="text-2xl font-bold tracking-widest text-slate-800 flex items-center gap-3">
-            <span>🏫</span> 考場數位黑板
-        </div>
+    <!-- 頂部控制列 -->
+    <header class="bg-slate-900 text-white border-b border-slate-700 px-5 py-3 flex flex-wrap justify-between items-center gap-3 z-50 shadow-md shrink-0">
         <div class="flex items-center gap-3">
-            <a href="../index.html" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-lg font-bold text-sm transition-colors" style="text-decoration:none">⬅️ 返回大廳三</a>
-            <button onclick="document.documentElement.requestFullscreen().catch(e=>console.log(e))" class="bg-slate-800 hover:bg-slate-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-transform active:scale-95 flex items-center gap-2 shadow-md">
-                📺 全螢幕投影
+            <span class="text-2xl">🏫</span>
+            <h1 class="text-xl sm:text-2xl font-extrabold tracking-wider text-white">考場數位黑板</h1>
+            <span id="modeBadge" class="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-900/80 text-blue-200 border border-blue-700">
+                引導模式（含大時鐘）
+            </span>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+            <!-- 返回大廳三按鈕 -->
+            <a href="../index.html" class="btn-back bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white px-3.5 py-2 rounded-xl font-bold text-sm border border-slate-600 transition-colors flex items-center gap-1.5" style="text-decoration:none">
+                ⬅️ <span class="hidden sm:inline">返回大廳三</span>
+            </a>
+
+            <!-- 引導模式 / 會考模式 一鍵切換 -->
+            <div class="flex items-center bg-slate-800 p-1 rounded-xl border border-slate-600">
+                <button id="btnGuideMode" onclick="setExamMode('guide')" class="px-3.5 py-2 rounded-lg text-sm font-bold transition-all bg-blue-600 text-white shadow">
+                    🧭 引導模式
+                </button>
+                <button id="btnMockMode" onclick="setExamMode('mock')" class="px-3.5 py-2 rounded-lg text-sm font-bold transition-all text-slate-300 hover:text-white">
+                    📝 會考模式
+                </button>
+            </div>
+
+            <!-- 重置今日資料 -->
+            <button onclick="resetAllData()" class="bg-slate-800 hover:bg-rose-700 text-slate-200 hover:text-white px-3.5 py-2 rounded-xl font-bold text-sm border border-slate-600 transition-colors" title="恢復預設考程與比例">
+                🔄 重置
+            </button>
+
+            <!-- 全螢幕投影 -->
+            <button onclick="toggleFullscreen()" class="bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded-xl font-bold text-sm transition-transform active:scale-95 flex items-center gap-1.5 shadow">
+                📺 <span class="hidden sm:inline">全螢幕投影</span>
             </button>
         </div>
-    </div>
+    </header>
 
-    <main class="flex-1 flex flex-col lg:flex-row gap-8 pt-24 pb-8 px-8 w-full max-w-[1600px] mx-auto h-full">
-        
-        <div class="flex flex-col w-full lg:w-5/12 h-full gap-6">
-            
-            <div class="flex-1 bg-white rounded-3xl border border-slate-200 shadow-xl flex flex-col items-center justify-center p-8 relative overflow-hidden">
-                <div class="absolute top-8 left-8 text-xl font-bold tracking-widest text-slate-400">CURRENT TIME</div>
-                
-                <div class="flex flex-col items-center justify-center w-full mt-8">
-                    <span id="dateDisplay" class="text-2xl xl:text-3xl font-bold text-slate-500 mb-6 tracking-wide">載入中...</span>
-                    <div class="flex items-baseline text-slate-800 font-mono-time">
-                        <span id="hourDisplay" class="text-[8rem] xl:text-[11rem] font-bold leading-none tracking-tighter">00</span>
-                        <span class="text-[6rem] xl:text-[8rem] font-bold leading-none blink text-slate-400 mx-2 mb-4">:</span>
-                        <span id="minuteDisplay" class="text-[8rem] xl:text-[11rem] font-bold leading-none tracking-tighter">00</span>
-                        <span id="secondDisplay" class="text-4xl xl:text-5xl font-bold text-slate-400 ml-4 mb-6">00</span>
+    <!-- 主畫面區 -->
+    <main id="mainContainer" class="flex-1 flex flex-col lg:flex-row gap-4 p-4 sm:p-5 w-full max-w-[1800px] mx-auto overflow-hidden">
+
+        <!-- 左欄（引導模式：大時鐘 + 精簡出缺席） / 頂部精簡橫幅（會考模式） -->
+        <section id="leftColumn" class="flex flex-col w-full lg:w-[40%] h-full gap-4 overflow-y-auto custom-scrollbar shrink-0 transition-all duration-300">
+
+            <!-- 區塊 1：日期與時間 (支援大幅度 A-/A+ 縮放，收合後完全只剩標題列) -->
+            <div id="clockCard" class="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden flex-1 flex flex-col min-h-0">
+                <div class="bg-slate-800 text-white px-5 py-2.5 flex justify-between items-center shrink-0 gap-2">
+                    <div class="flex items-center gap-2 font-bold tracking-wider text-base sm:text-lg">
+                        <span>🕒</span> 現在時間
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <!-- 時鐘字體縮放（支援到 200%） -->
+                        <div class="flex items-center bg-slate-700 rounded-lg p-0.5 border border-slate-600">
+                            <button onclick="changeClockZoom(-0.15)" class="w-8 h-8 flex items-center justify-center rounded bg-slate-600 hover:bg-slate-500 text-white font-bold text-sm" title="縮小時間字體">A-</button>
+                            <span id="clockZoomLabel" class="px-2 text-xs font-mono font-bold text-blue-200">100%</span>
+                            <button onclick="changeClockZoom(0.15)" class="w-8 h-8 flex items-center justify-center rounded bg-slate-600 hover:bg-slate-500 text-white font-bold text-sm" title="放大時間字體">A+</button>
+                        </div>
+
+                        <!-- 收合 / 展開鈕 -->
+                        <button onclick="toggleCard('clockBody', 'clockCard', true)" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-1 transition-colors" title="收合或展開時鐘">
+                            <span id="clockToggleLabel">收合</span>
+                            <svg class="w-4 h-4 arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
-            </div>
 
-            <div class="bg-white rounded-3xl border border-slate-200 shadow-xl p-8 shrink-0">
-                <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                    <span>👥</span> 出缺席統計
-                </h3>
-                <div class="flex justify-between items-center mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                    <div class="flex items-center gap-3">
-                        <span class="text-slate-500 font-bold text-lg">應到：</span>
-                        <input type="number" id="totalStudents" class="board-input w-20 text-center text-2xl" value="35">
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span class="text-slate-500 font-bold text-lg">實到：</span>
-                        <input type="number" id="actualStudents" class="board-input w-20 text-center text-2xl text-green-700" value="35">
-                    </div>
-                    <div class="flex items-center gap-3 bg-white px-5 py-2 rounded-xl shadow-sm border border-red-100">
-                        <span class="text-slate-500 font-bold text-lg">缺考：</span>
-                        <span id="absentStudents" class="text-3xl font-bold text-red-600 w-10 text-center">0</span>
-                    </div>
-                </div>
-                <div>
-                    <span class="block text-slate-500 font-bold mb-3 text-sm">缺考名單與特殊備註：</span>
-                    <textarea placeholder="例如：5號(病假)、12號(特教考場)..." class="board-input w-full p-4 h-24 text-lg bg-slate-50" spellcheck="false"></textarea>
-                </div>
-            </div>
-        </div>
-
-        <div id="rightPanel" class="flex flex-col w-full lg:w-7/12 h-full gap-6 overflow-y-auto pr-2 pb-10 custom-scrollbar">
-            
-            <div class="bg-slate-800 text-white rounded-2xl p-5 shadow-lg flex justify-between items-center shrink-0">
-                <h2 class="text-2xl font-bold tracking-wider flex items-center gap-3">
-                    <span>📅</span> 今日考程表
-                </h2>
-                
-                <div class="flex items-center bg-slate-700 rounded-lg p-1 gap-1 border border-slate-600">
-                    <span class="text-xs text-slate-300 font-bold ml-2 mr-1 hidden sm:inline">字體大小</span>
-                    <button onclick="changeZoom(-0.1)" class="w-8 h-8 flex items-center justify-center rounded bg-slate-600 hover:bg-slate-500 text-white font-bold transition-colors shadow-sm" title="縮小字體">A-</button>
-                    <button onclick="changeZoom(0.1)" class="w-8 h-8 flex items-center justify-center rounded bg-slate-600 hover:bg-slate-500 text-white font-bold transition-colors shadow-sm" title="放大字體">A+</button>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden shrink-0">
-                <button onclick="toggleSection('morningSection')" class="w-full bg-slate-50 hover:bg-slate-100 p-5 flex justify-between items-center border-b border-slate-200 transition-colors focus:outline-none">
-                    <div class="zoom-text-xl font-bold text-slate-700 flex items-center gap-2">
-                        <span class="text-2xl">☀️</span> 上午考程 (第1~4節)
-                    </div>
-                    <svg class="w-6 h-6 text-slate-500 arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </button>
-                
-                <div id="morningSection" class="collapse-content">
-                    <div>
-                        <div class="p-6 flex flex-col gap-4">
-                            <div class="flex items-center gap-4 bg-white p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                                <span class="bg-slate-200 text-slate-700 font-black px-4 py-2 rounded-lg zoom-text-lg">第一節</span>
-                                <input type="text" class="board-input zoom-w-time zoom-text-xl text-center" placeholder="時間" value="08:10 - 09:00">
-                                <input type="text" class="board-input flex-1 zoom-text-xl" placeholder="考試科目" value="國文">
-                            </div>
-                            <div class="flex items-center gap-4 bg-white p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                                <span class="bg-slate-200 text-slate-700 font-black px-4 py-2 rounded-lg zoom-text-lg">第二節</span>
-                                <input type="text" class="board-input zoom-w-time zoom-text-xl text-center" placeholder="時間" value="09:15 - 10:05">
-                                <input type="text" class="board-input flex-1 zoom-text-xl" placeholder="考試科目" value="數學">
-                            </div>
-                            <div class="flex items-center gap-4 bg-white p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                                <span class="bg-slate-200 text-slate-700 font-black px-4 py-2 rounded-lg zoom-text-lg">第三節</span>
-                                <input type="text" class="board-input zoom-w-time zoom-text-xl text-center" placeholder="時間" value="10:20 - 11:10">
-                                <input type="text" class="board-input flex-1 zoom-text-xl" placeholder="考試科目" value="英文">
-                            </div>
-                            <div class="flex items-center gap-4 bg-white p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                                <span class="bg-slate-200 text-slate-700 font-black px-4 py-2 rounded-lg zoom-text-lg">第四節</span>
-                                <input type="text" class="board-input zoom-w-time zoom-text-xl text-center" placeholder="時間" value="11:20 - 12:10">
-                                <input type="text" class="board-input flex-1 zoom-text-xl" placeholder="考試科目" value="自習">
-                            </div>
+                <div id="clockBody" class="collapse-content flex-1 min-h-0 flex flex-col">
+                    <div class="flex flex-col items-center justify-center flex-1 py-4 px-3 bg-gradient-to-b from-white to-slate-50 overflow-hidden">
+                        <span id="dateDisplay" class="clock-date-zoom font-bold text-slate-500 mb-3 tracking-wide text-center">載入中...</span>
+                        <div class="flex items-baseline justify-center text-slate-900 font-mono-time">
+                            <span id="hourDisplay" class="clock-main-zoom font-bold tracking-tighter">00</span>
+                            <span class="clock-colon-zoom font-bold blink text-blue-600 mx-1.5 mb-2">:</span>
+                            <span id="minuteDisplay" class="clock-main-zoom font-bold tracking-tighter">00</span>
+                            <span id="secondDisplay" class="clock-sec-zoom font-bold text-slate-400 ml-3 mb-3">00</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden shrink-0">
-                <button onclick="toggleSection('afternoonSection')" class="w-full bg-slate-50 hover:bg-slate-100 p-5 flex justify-between items-center border-b border-slate-200 transition-colors focus:outline-none">
-                    <div class="zoom-text-xl font-bold text-slate-700 flex items-center gap-2">
-                        <span class="text-2xl">☕</span> 下午考程 (第5~7節)
-                    </div>
-                    <svg class="w-6 h-6 text-slate-500 arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </button>
-                
-                <div id="afternoonSection" class="collapse-content">
-                    <div>
-                        <div class="p-6 flex flex-col gap-4">
-                            <div class="flex items-center gap-4 bg-white p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                                <span class="bg-slate-200 text-slate-700 font-black px-4 py-2 rounded-lg zoom-text-lg">第五節</span>
-                                <input type="text" class="board-input zoom-w-time zoom-text-xl text-center" placeholder="時間" value="13:10 - 14:00">
-                                <input type="text" class="board-input flex-1 zoom-text-xl" placeholder="考試科目" value="社會">
+            <!-- 區塊 2：出缺席統計與特殊名單 (永遠保持精簡高度，不被拉大浪費空間) -->
+            <div id="attendanceCard" class="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden shrink-0 flex flex-col">
+                <div class="bg-slate-800 text-white px-5 py-2.5 flex justify-between items-center shrink-0">
+                    <h3 class="text-base sm:text-lg font-bold flex items-center gap-2 tracking-wider">
+                        <span>👥</span> 出缺席統計與特殊名單
+                    </h3>
+                    <button onclick="toggleCard('attendanceBody', 'attendanceCard', false)" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-1 transition-colors" title="收合或展開出缺席統計">
+                        <span id="attendanceToggleLabel">收合</span>
+                        <svg class="w-4 h-4 arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div id="attendanceBody" class="collapse-content">
+                    <div id="attendanceInner" class="p-4 flex flex-col gap-3">
+                        <!-- 人數統計列 -->
+                        <div id="statsGrid" class="grid grid-cols-3 gap-2.5 bg-slate-50 p-2.5 rounded-xl border border-slate-200 shrink-0">
+                            <div class="flex flex-col items-center justify-center bg-white py-1.5 px-2 rounded-lg border border-slate-200">
+                                <span class="text-slate-500 font-bold text-sm">應到</span>
+                                <input type="number" id="totalStudents" class="board-input w-24 text-center text-2xl sm:text-3xl text-slate-800 mt-0.5 font-mono-time" value="35" min="0">
                             </div>
-                            <div class="flex items-center gap-4 bg-white p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                                <span class="bg-slate-200 text-slate-700 font-black px-4 py-2 rounded-lg zoom-text-lg">第六節</span>
-                                <input type="text" class="board-input zoom-w-time zoom-text-xl text-center" placeholder="時間" value="14:15 - 15:05">
-                                <input type="text" class="board-input flex-1 zoom-text-xl" placeholder="考試科目" value="自然">
+                            <div class="flex flex-col items-center justify-center bg-white py-1.5 px-2 rounded-lg border border-slate-200">
+                                <span class="text-slate-500 font-bold text-sm">實到</span>
+                                <input type="number" id="actualStudents" class="board-input w-24 text-center text-2xl sm:text-3xl text-blue-700 mt-0.5 font-mono-time" value="35" min="0">
                             </div>
-                            <div class="flex items-center gap-4 bg-white p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                                <span class="bg-slate-200 text-slate-700 font-black px-4 py-2 rounded-lg zoom-text-lg">第七節</span>
-                                <input type="text" class="board-input zoom-w-time zoom-text-xl text-center" placeholder="時間" value="15:20 - 16:10">
-                                <input type="text" class="board-input flex-1 zoom-text-xl" placeholder="考試科目" value="班會/大掃除">
+                            <div class="flex flex-col items-center justify-center bg-white py-1.5 px-2 rounded-lg border border-rose-200">
+                                <span class="text-slate-500 font-bold text-sm">缺考</span>
+                                <span id="absentStudents" class="text-2xl sm:text-3xl font-extrabold text-slate-400 mt-0.5 leading-[38px] font-mono-time">0</span>
                             </div>
+                        </div>
+
+                        <!-- 缺考名單與特殊備註 (固定精簡 2 行高度) -->
+                        <div id="notesWrapper" class="flex flex-col">
+                            <label id="notesLabel" for="specialNotes" class="block text-slate-600 font-bold mb-1.5 text-sm sm:text-base shrink-0">
+                                📌 缺考座號與特殊考場備註：
+                            </label>
+                            <textarea id="specialNotes" placeholder="例如：5號(病假)、12號(資源班考場)..." class="board-input w-full h-[68px] p-2.5 text-base sm:text-lg leading-snug bg-slate-50" spellcheck="false"></textarea>
                         </div>
                     </div>
                 </div>
             </div>
+        </section>
 
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 shrink-0 mt-2">
-                <div class="text-slate-500 font-bold mb-3 flex items-center gap-2 zoom-text-lg">
-                    <span>⚠️</span> 考場注意事項
+        <!-- 右欄（引導模式：上下可拖曳調整） / 下方全寬區（會考模式：左右可拖曳調整） -->
+        <section id="rightColumn" class="flex flex-col w-full lg:w-[60%] h-full overflow-hidden">
+
+            <!-- 子區塊 A：今日考程表 (引導模式在上方；會考模式在左方) -->
+            <div id="schedulePane" class="flex flex-col flex-1 min-h-[140px] min-w-[260px] gap-3 overflow-hidden">
+                <!-- 考程控制標頭 -->
+                <div class="bg-slate-800 text-white rounded-2xl px-5 py-2.5 shadow-md flex flex-wrap justify-between items-center gap-2 shrink-0">
+                    <h2 class="text-xl sm:text-2xl font-extrabold tracking-wider flex items-center gap-2.5">
+                        <span>📅</span> 今日考程表
+                    </h2>
+
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs sm:text-sm text-slate-300 font-bold">考程字級</span>
+                        <div class="flex items-center bg-slate-700 rounded-xl p-1 gap-1 border border-slate-600">
+                            <button onclick="changeScheduleZoom(-0.1)" class="w-9 h-9 flex items-center justify-center rounded-lg bg-slate-600 hover:bg-slate-500 text-white font-extrabold text-base transition-colors" title="縮小考程字體">A-</button>
+                            <span id="scheduleZoomLabel" class="px-2 text-sm font-mono font-bold text-blue-200">100%</span>
+                            <button onclick="changeScheduleZoom(0.1)" class="w-9 h-9 flex items-center justify-center rounded-lg bg-slate-600 hover:bg-slate-500 text-white font-extrabold text-base transition-colors" title="放大考程字體">A+</button>
+                        </div>
+                    </div>
                 </div>
-                <textarea class="board-input w-full p-4 zoom-text-xl leading-relaxed bg-slate-50 h-[200px]" spellcheck="false">1. 桌面淨空，僅保留考試用文具。
-2. 行動電話請完全關機，並放入書包。
-3. 考試開始 15 分鐘後不得入場。
-4. 鐘聲響畢，請立即停筆，違者依考場規定扣分。</textarea>
+
+                <!-- 上午 & 下午考程捲動區 -->
+                <div id="scheduleScrollArea" class="flex-1 overflow-y-auto pr-1 custom-scrollbar min-h-0">
+                    <div id="scheduleCardsContainer" class="flex flex-col gap-3.5">
+
+                        <!-- 區塊 3：上午考程 (第1~4節) -->
+                        <div id="morningCard" class="bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden shrink-0">
+                            <button onclick="toggleCard('morningSection', 'morningCard', false)" class="w-full bg-slate-50 hover:bg-slate-100 px-5 py-3 flex justify-between items-center border-b border-slate-200 transition-colors focus:outline-none">
+                                <div class="zoom-text-row font-extrabold text-slate-800 flex items-center gap-2.5">
+                                    <span>☀️</span> 上午考程（第 1～4 節）
+                                </div>
+                                <div class="flex items-center gap-1.5 text-slate-600 font-bold text-sm">
+                                    <span id="morningToggleLabel">收合</span>
+                                    <svg class="w-5 h-5 arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                            </button>
+
+                            <div id="morningSection" class="collapse-content">
+                                <div class="p-3.5 flex flex-col gap-2">
+                                    <div class="flex items-center gap-3 bg-slate-50/70 px-3 py-1.5 rounded-xl border border-slate-100">
+                                        <span class="bg-blue-900 text-white font-bold px-3.5 py-1.5 rounded-lg zoom-text-badge">第一節</span>
+                                        <input type="text" data-save="t1" class="board-input zoom-time-input text-center font-mono-time" value="08:10 - 09:00">
+                                        <input type="text" data-save="s1" class="board-input zoom-subject-input flex-1 text-blue-950" value="國文">
+                                    </div>
+                                    <div class="flex items-center gap-3 bg-slate-50/70 px-3 py-1.5 rounded-xl border border-slate-100">
+                                        <span class="bg-blue-900 text-white font-bold px-3.5 py-1.5 rounded-lg zoom-text-badge">第二節</span>
+                                        <input type="text" data-save="t2" class="board-input zoom-time-input text-center font-mono-time" value="09:15 - 10:05">
+                                        <input type="text" data-save="s2" class="board-input zoom-subject-input flex-1 text-blue-950" value="數學">
+                                    </div>
+                                    <div class="flex items-center gap-3 bg-slate-50/70 px-3 py-1.5 rounded-xl border border-slate-100">
+                                        <span class="bg-blue-900 text-white font-bold px-3.5 py-1.5 rounded-lg zoom-text-badge">第三節</span>
+                                        <input type="text" data-save="t3" class="board-input zoom-time-input text-center font-mono-time" value="10:20 - 11:10">
+                                        <input type="text" data-save="s3" class="board-input zoom-subject-input flex-1 text-blue-950" value="英文">
+                                    </div>
+                                    <div class="flex items-center gap-3 bg-slate-50/70 px-3 py-1.5 rounded-xl border border-slate-100">
+                                        <span class="bg-slate-600 text-white font-bold px-3.5 py-1.5 rounded-lg zoom-text-badge">第四節</span>
+                                        <input type="text" data-save="t4" class="board-input zoom-time-input text-center font-mono-time" value="11:20 - 12:10">
+                                        <input type="text" data-save="s4" class="board-input zoom-subject-input flex-1 text-slate-700" value="自習">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 區塊 4：下午考程 (第5~7節) -->
+                        <div id="afternoonCard" class="bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden shrink-0">
+                            <button onclick="toggleCard('afternoonSection', 'afternoonCard', false)" class="w-full bg-slate-50 hover:bg-slate-100 px-5 py-3 flex justify-between items-center border-b border-slate-200 transition-colors focus:outline-none">
+                                <div class="zoom-text-row font-extrabold text-slate-800 flex items-center gap-2.5">
+                                    <span>☕</span> 下午考程（第 5～7 節）
+                                </div>
+                                <div class="flex items-center gap-1.5 text-slate-600 font-bold text-sm">
+                                    <span id="afternoonToggleLabel">收合</span>
+                                    <svg class="w-5 h-5 arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                            </button>
+
+                            <div id="afternoonSection" class="collapse-content">
+                                <div class="p-3.5 flex flex-col gap-2">
+                                    <div class="flex items-center gap-3 bg-slate-50/70 px-3 py-1.5 rounded-xl border border-slate-100">
+                                        <span class="bg-blue-900 text-white font-bold px-3.5 py-1.5 rounded-lg zoom-text-badge">第五節</span>
+                                        <input type="text" data-save="t5" class="board-input zoom-time-input text-center font-mono-time" value="13:10 - 14:00">
+                                        <input type="text" data-save="s5" class="board-input zoom-subject-input flex-1 text-blue-950" value="社會">
+                                    </div>
+                                    <div class="flex items-center gap-3 bg-slate-50/70 px-3 py-1.5 rounded-xl border border-slate-100">
+                                        <span class="bg-blue-900 text-white font-bold px-3.5 py-1.5 rounded-lg zoom-text-badge">第六節</span>
+                                        <input type="text" data-save="t6" class="board-input zoom-time-input text-center font-mono-time" value="14:15 - 15:05">
+                                        <input type="text" data-save="s6" class="board-input zoom-subject-input flex-1 text-blue-950" value="自然">
+                                    </div>
+                                    <div class="flex items-center gap-3 bg-slate-50/70 px-3 py-1.5 rounded-xl border border-slate-100">
+                                        <span class="bg-slate-600 text-white font-bold px-3.5 py-1.5 rounded-lg zoom-text-badge">第七節</span>
+                                        <input type="text" data-save="t7" class="board-input zoom-time-input text-center font-mono-time" value="15:20 - 16:10">
+                                        <input type="text" data-save="s7" class="board-input zoom-subject-input flex-1 text-slate-700" value="自習 / 班會">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
             </div>
 
-        </div>
+            <!-- 引導模式專用：上下可拖曳調整高度分隔線 -->
+            <div id="hSplitter" class="splitter-h" title="上下拖曳可調整考程與注意事項高度比例">
+                <div class="splitter-bar"></div>
+            </div>
+
+            <!-- 會考模式專用：左右可拖曳調整寬度分隔線 -->
+            <div id="vSplitter" class="splitter-v" title="左右拖曳可調整考程與注意事項寬度比例">
+                <div class="splitter-bar"></div>
+            </div>
+
+            <!-- 子區塊 B：考場注意事項 (引導模式在下方；會考模式在右方) -->
+            <div id="noticeCard" style="height: 225px;" class="bg-white rounded-2xl border-2 border-amber-400 shadow-lg overflow-hidden shrink-0 flex flex-col min-h-0 min-w-[240px]">
+                <div class="bg-amber-50 border-b border-amber-200 px-5 py-2.5 flex flex-wrap justify-between items-center gap-2 shrink-0">
+                    <div class="text-amber-900 font-extrabold text-lg sm:text-xl flex items-center gap-2">
+                        <span>⚠️</span> 考場注意事項
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <!-- 注意事項獨立字體放大縮小 -->
+                        <div class="flex items-center bg-amber-100/80 rounded-lg p-0.5 border border-amber-300">
+                            <button onclick="changeNoticeZoom(-0.1)" class="w-8 h-8 flex items-center justify-center rounded bg-white hover:bg-amber-200 text-amber-950 font-bold text-sm" title="縮小注意事項字體">A-</button>
+                            <button onclick="changeNoticeZoom(0.1)" class="w-8 h-8 flex items-center justify-center rounded bg-white hover:bg-amber-200 text-amber-950 font-bold text-sm" title="放大注意事項字體">A+</button>
+                        </div>
+
+                        <button onclick="toggleCard('noticeBody', 'noticeCard', false)" class="bg-amber-200/80 hover:bg-amber-300 text-amber-950 px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-1 transition-colors">
+                            <span id="noticeToggleLabel">收合</span>
+                            <svg class="w-4 h-4 arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="noticeBody" class="collapse-content flex-1 min-h-0">
+                    <div class="p-3 bg-amber-50/30 h-full flex flex-col">
+                        <textarea id="examRulesText" class="board-input w-full flex-1 p-3.5 notice-zoom-text font-bold text-slate-900 bg-white" spellcheck="false">1. 桌面淨空，僅保留 2B 鉛筆、橡皮擦、黑色原子筆等規定文具。
+2. 行動電話請完全關機並放入書包；嚴禁使用具通訊、計算、傳輸功能之穿戴裝置。
+3. 考試開始 15 分鐘後不得入場，未滿規定時間不得提早交卷出場。
+4. 看清題號與作答區；鐘聲響畢請立即停筆，違者依考場規定扣分。</textarea>
+                    </div>
+                </div>
+            </div>
+
+        </section>
     </main>
 
     <script>
-        // === 右側面板：字體放大縮小邏輯 ===
-        let currentZoom = 1;
-        function changeZoom(step) {
-            currentZoom += step;
-            // 限制縮放範圍，避免字體過大破壞版面或過小看不見
-            if (currentZoom < 0.8) currentZoom = 0.8;
-            if (currentZoom > 1.8) currentZoom = 1.8;
-            
-            document.getElementById('rightPanel').style.setProperty('--zoom', currentZoom);
+        const STORAGE_KEY = 'exam_board_v6_data';
+
+        let state = {
+            mode: 'guide',           // 'guide' | 'mock'
+            clockZoom: 1.0,
+            scheduleZoom: 1.0,
+            noticeZoom: 1.0,
+            guideNoticeHeight: 225,  // 引導模式下，注意事項區塊高度 (px)
+            mockLeftWidthPct: 56,    // 會考模式下，左側考程區寬度百分比 (%)
+            collapsed: {
+                clockBody: false,
+                attendanceBody: false,
+                morningSection: false,
+                afternoonSection: false,
+                noticeBody: false
+            }
+        };
+
+        // === 1. 模式切換（引導模式 vs 會考模式） ===
+        function setExamMode(mode) {
+            state.mode = mode;
+            const body = document.body;
+            const btnGuide = document.getElementById('btnGuideMode');
+            const btnMock = document.getElementById('btnMockMode');
+            const modeBadge = document.getElementById('modeBadge');
+            const noticeCard = document.getElementById('noticeCard');
+
+            if (mode === 'mock') {
+                body.classList.add('mock-exam-mode');
+                btnMock.className = 'px-3.5 py-2 rounded-lg text-sm font-bold transition-all bg-amber-500 text-slate-950 shadow';
+                btnGuide.className = 'px-3.5 py-2 rounded-lg text-sm font-bold transition-all text-slate-300 hover:text-white';
+                modeBadge.textContent = '會考模式（左考程・右注意事項）';
+                modeBadge.className = 'hidden sm:inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-400/50';
+                noticeCard.style.height = '';
+                document.getElementById('rightColumn').style.setProperty('--mock-left-width', state.mockLeftWidthPct + '%');
+            } else {
+                body.classList.remove('mock-exam-mode');
+                btnGuide.className = 'px-3.5 py-2 rounded-lg text-sm font-bold transition-all bg-blue-600 text-white shadow';
+                btnMock.className = 'px-3.5 py-2 rounded-lg text-sm font-bold transition-all text-slate-300 hover:text-white';
+                modeBadge.textContent = '引導模式（含大時鐘）';
+                modeBadge.className = 'hidden sm:inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-900/80 text-blue-200 border border-blue-700';
+                noticeCard.style.height = state.collapsed.noticeBody ? 'auto' : state.guideNoticeHeight + 'px';
+            }
+            saveAllData();
         }
 
-        // === 超大時鐘與日期邏輯 ===
+        // === 2. 時鐘字級縮放（支援 70% ~ 200%） ===
+        function changeClockZoom(step) {
+            state.clockZoom = Math.round((state.clockZoom + step) * 100) / 100;
+            if (state.clockZoom < 0.7) state.clockZoom = 0.7;
+            if (state.clockZoom > 2.0) state.clockZoom = 2.0;
+
+            document.getElementById('clockCard').style.setProperty('--clock-zoom', state.clockZoom);
+            document.getElementById('clockZoomLabel').textContent = Math.round(state.clockZoom * 100) + '%';
+            saveAllData();
+        }
+
+        // === 3. 考程區字級縮放 ===
+        function changeScheduleZoom(step) {
+            state.scheduleZoom = Math.round((state.scheduleZoom + step) * 10) / 10;
+            if (state.scheduleZoom < 0.8) state.scheduleZoom = 0.8;
+            if (state.scheduleZoom > 1.5) state.scheduleZoom = 1.5;
+
+            document.getElementById('scheduleScrollArea').style.setProperty('--zoom', state.scheduleZoom);
+            document.getElementById('scheduleZoomLabel').textContent = Math.round(state.scheduleZoom * 100) + '%';
+            saveAllData();
+        }
+
+        // === 4. 注意事項獨立字級縮放 ===
+        function changeNoticeZoom(step) {
+            state.noticeZoom = Math.round((state.noticeZoom + step) * 10) / 10;
+            if (state.noticeZoom < 0.8) state.noticeZoom = 0.8;
+            if (state.noticeZoom > 1.6) state.noticeZoom = 1.6;
+
+            document.getElementById('noticeCard').style.setProperty('--notice-zoom', state.noticeZoom);
+            saveAllData();
+        }
+
+        // === 5. 五大區塊獨立收合 / 展開邏輯 ===
+        function toggleCard(bodyId, cardId, isClock = false) {
+            const bodyEl = document.getElementById(bodyId);
+            const cardEl = document.getElementById(cardId);
+            const isCollapsed = bodyEl.classList.toggle('collapsed');
+            cardEl.classList.toggle('collapsed', isCollapsed);
+
+            state.collapsed[bodyId] = isCollapsed;
+
+            const labelMap = {
+                clockBody: 'clockToggleLabel',
+                attendanceBody: 'attendanceToggleLabel',
+                morningSection: 'morningToggleLabel',
+                afternoonSection: 'afternoonToggleLabel',
+                noticeBody: 'noticeToggleLabel'
+            };
+            if (labelMap[bodyId]) {
+                document.getElementById(labelMap[bodyId]).textContent = isCollapsed ? '展開' : '收合';
+            }
+
+            // 時鐘收合後，只剩一條標題列，且不把下方出缺席區拉大
+            if (isClock) {
+                if (isCollapsed) {
+                    cardEl.classList.remove('flex-1');
+                    cardEl.classList.add('shrink-0');
+                } else {
+                    cardEl.classList.add('flex-1');
+                    cardEl.classList.remove('shrink-0');
+                }
+            }
+
+            // 引導模式下收合注意事項時自動調整高度
+            if (bodyId === 'noticeBody' && state.mode === 'guide') {
+                cardEl.style.height = isCollapsed ? 'auto' : state.guideNoticeHeight + 'px';
+            }
+            saveAllData();
+        }
+
+        // === 6. 可拖曳分隔線邏輯 (支援滑鼠 & 教室觸屏觸控) ===
+        function initSplitters() {
+            const hSplitter = document.getElementById('hSplitter');
+            const vSplitter = document.getElementById('vSplitter');
+            const rightColumn = document.getElementById('rightColumn');
+            const noticeCard = document.getElementById('noticeCard');
+
+            // (A) 引導模式：上下拖曳調整考程與注意事項高度
+            let isDraggingH = false;
+            const startH = (e) => {
+                if (state.mode !== 'guide' || state.collapsed.noticeBody) return;
+                isDraggingH = true;
+                hSplitter.classList.add('dragging');
+                e.preventDefault();
+            };
+            const moveH = (clientY) => {
+                if (!isDraggingH) return;
+                const rect = rightColumn.getBoundingClientRect();
+                let newNoticeHeight = rect.bottom - clientY - 8;
+                const minH = 110;
+                const maxH = rect.height - 160;
+                newNoticeHeight = Math.max(minH, Math.min(maxH, newNoticeHeight));
+                state.guideNoticeHeight = Math.round(newNoticeHeight);
+                noticeCard.style.height = state.guideNoticeHeight + 'px';
+            };
+
+            hSplitter.addEventListener('mousedown', startH);
+            hSplitter.addEventListener('touchstart', startH, { passive: false });
+
+            // (B) 會考模式：左右拖曳調整左考程與右注意事項寬度
+            let isDraggingV = false;
+            const startV = (e) => {
+                if (state.mode !== 'mock') return;
+                isDraggingV = true;
+                vSplitter.classList.add('dragging');
+                e.preventDefault();
+            };
+            const moveV = (clientX) => {
+                if (!isDraggingV) return;
+                const rect = rightColumn.getBoundingClientRect();
+                let pct = ((clientX - rect.left) / rect.width) * 100;
+                pct = Math.max(32, Math.min(72, pct));
+                state.mockLeftWidthPct = Math.round(pct * 10) / 10;
+                rightColumn.style.setProperty('--mock-left-width', state.mockLeftWidthPct + '%');
+            };
+
+            vSplitter.addEventListener('mousedown', startV);
+            vSplitter.addEventListener('touchstart', startV, { passive: false });
+
+            window.addEventListener('mousemove', (e) => {
+                if (isDraggingH) moveH(e.clientY);
+                if (isDraggingV) moveV(e.clientX);
+            });
+            window.addEventListener('touchmove', (e) => {
+                if (!isDraggingH && !isDraggingV) return;
+                const touch = e.touches[0];
+                if (isDraggingH) moveH(touch.clientY);
+                if (isDraggingV) moveV(touch.clientX);
+            }, { passive: false });
+
+            const endDrag = () => {
+                if (isDraggingH || isDraggingV) {
+                    isDraggingH = false;
+                    isDraggingV = false;
+                    hSplitter.classList.remove('dragging');
+                    vSplitter.classList.remove('dragging');
+                    saveAllData();
+                }
+            };
+            window.addEventListener('mouseup', endDrag);
+            window.addEventListener('touchend', endDrag);
+        }
+
+        // === 7. 即時時鐘與日期更新 ===
         const hourDisplay = document.getElementById('hourDisplay');
         const minuteDisplay = document.getElementById('minuteDisplay');
         const secondDisplay = document.getElementById('secondDisplay');
         const dateDisplay = document.getElementById('dateDisplay');
-
         const days = ['日', '一', '二', '三', '四', '五', '六'];
 
         function updateClock() {
             const now = new Date();
-            
-            // 更新時間
-            hourDisplay.innerText = String(now.getHours()).padStart(2, '0');
-            minuteDisplay.innerText = String(now.getMinutes()).padStart(2, '0');
-            secondDisplay.innerText = String(now.getSeconds()).padStart(2, '0');
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            const ss = String(now.getSeconds()).padStart(2, '0');
 
-            // 更新日期
+            hourDisplay.textContent = hh;
+            minuteDisplay.textContent = mm;
+            secondDisplay.textContent = ss;
+
             const year = now.getFullYear();
             const month = now.getMonth() + 1;
             const date = now.getDate();
             const day = days[now.getDay()];
-            dateDisplay.innerText = `${year}年 ${month}月 ${date}日 (${day})`;
-            
-            requestAnimationFrame(updateClock);
+            dateDisplay.textContent = `${year}年 ${month}月 ${date}日 (${day})`;
         }
-        updateClock(); // 啟動時鐘
+        setInterval(updateClock, 250);
+        updateClock();
 
-        // === 考程表收合邏輯 ===
-        function toggleSection(sectionId) {
-            const section = document.getElementById(sectionId);
-            const wrapper = section.parentElement;
-            
-            // 切換 collapsed 類別來控制 CSS Grid 動畫
-            section.classList.toggle('collapsed');
-            wrapper.classList.toggle('collapsed');
-        }
-
-        // === 自動計算缺考人數邏輯 ===
+        // === 8. 自動計算缺考人數 ===
         const totalIn = document.getElementById('totalStudents');
         const actualIn = document.getElementById('actualStudents');
         const absentOut = document.getElementById('absentStudents');
-        
+
         function calcAbsent() {
             const total = parseInt(totalIn.value) || 0;
             const actual = parseInt(actualIn.value) || 0;
             const absent = Math.max(0, total - actual);
-            absentOut.innerText = absent;
-            // 缺考人數大於0時，數字稍微變大且變紅以提醒
-            absentOut.className = absent > 0 ? "text-4xl font-black text-red-600 w-10 text-center" : "text-3xl font-bold text-slate-400 w-10 text-center";
+            absentOut.textContent = absent;
+            absentOut.className = absent > 0
+                ? 'text-2xl sm:text-3xl font-black text-rose-600 mt-0.5 leading-[38px] font-mono-time'
+                : 'text-2xl sm:text-3xl font-extrabold text-slate-400 mt-0.5 leading-[38px] font-mono-time';
         }
-        totalIn.addEventListener('input', calcAbsent);
-        actualIn.addEventListener('input', calcAbsent);
-        
-        // 初始化計算一次
-        calcAbsent();
+        totalIn.addEventListener('input', () => { calcAbsent(); saveAllData(); });
+        actualIn.addEventListener('input', () => { calcAbsent(); saveAllData(); });
+
+        // === 9. 全螢幕切換 ===
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(e => console.log(e));
+            } else {
+                document.exitFullscreen().catch(e => console.log(e));
+            }
+        }
+
+        // === 10. localStorage 自動儲存與還原 ===
+        function saveAllData() {
+            const inputs = {};
+            document.querySelectorAll('[data-save]').forEach(el => {
+                inputs[el.getAttribute('data-save')] = el.value;
+            });
+
+            const payload = {
+                state,
+                totalStudents: totalIn.value,
+                actualStudents: actualIn.value,
+                specialNotes: document.getElementById('specialNotes').value,
+                examRulesText: document.getElementById('examRulesText').value,
+                inputs
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        }
+
+        function loadAllData() {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) {
+                calcAbsent();
+                return;
+            }
+            try {
+                const payload = JSON.parse(raw);
+                if (payload.totalStudents !== undefined) totalIn.value = payload.totalStudents;
+                if (payload.actualStudents !== undefined) actualIn.value = payload.actualStudents;
+                if (payload.specialNotes !== undefined) document.getElementById('specialNotes').value = payload.specialNotes;
+                if (payload.examRulesText !== undefined) document.getElementById('examRulesText').value = payload.examRulesText;
+
+                if (payload.inputs) {
+                    document.querySelectorAll('[data-save]').forEach(el => {
+                        const key = el.getAttribute('data-save');
+                        if (payload.inputs[key] !== undefined) {
+                            el.value = payload.inputs[key];
+                        }
+                    });
+                }
+
+                if (payload.state) {
+                    state = { ...state, ...payload.state };
+                    setExamMode(state.mode || 'guide');
+                    document.getElementById('clockCard').style.setProperty('--clock-zoom', state.clockZoom || 1);
+                    document.getElementById('clockZoomLabel').textContent = Math.round((state.clockZoom || 1) * 100) + '%';
+                    document.getElementById('scheduleScrollArea').style.setProperty('--zoom', state.scheduleZoom || 1);
+                    document.getElementById('scheduleZoomLabel').textContent = Math.round((state.scheduleZoom || 1) * 100) + '%';
+                    document.getElementById('noticeCard').style.setProperty('--notice-zoom', state.noticeZoom || 1);
+                    document.getElementById('rightColumn').style.setProperty('--mock-left-width', (state.mockLeftWidthPct || 56) + '%');
+
+                    // 還原收合狀態
+                    const cardMap = {
+                        clockBody: ['clockCard', true],
+                        attendanceBody: ['attendanceCard', false],
+                        morningSection: ['morningCard', false],
+                        afternoonSection: ['afternoonCard', false],
+                        noticeBody: ['noticeCard', false]
+                    };
+                    Object.entries(state.collapsed || {}).forEach(([bodyId, shouldCollapse]) => {
+                        if (shouldCollapse && cardMap[bodyId]) {
+                            const [cardId, isClock] = cardMap[bodyId];
+                            const bodyEl = document.getElementById(bodyId);
+                            if (bodyEl && !bodyEl.classList.contains('collapsed')) {
+                                toggleCard(bodyId, cardId, isClock);
+                            }
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error('讀取暫存資料失敗', e);
+            }
+            calcAbsent();
+        }
+
+        function resetAllData() {
+            if (confirm('確定要清除今日填寫的缺考名單與畫面比例，恢復為預設狀態嗎？')) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        }
+
+        // 監聽所有輸入框自動存檔
+        document.querySelectorAll('[data-save], #specialNotes, #examRulesText').forEach(el => {
+            el.addEventListener('input', saveAllData);
+        });
+
+        initSplitters();
+        loadAllData();
     </script>
 </body>
 </html>
+
